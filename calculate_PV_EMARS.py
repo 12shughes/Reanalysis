@@ -20,7 +20,7 @@ def calculate_pfull(psurf, ak, bk):
 
     p_i = psurf*bk + ak
 
-    p = xr.zeros_like()
+    p = xr.zeros_like(ak)
     p[k] = (p_i[k+1]-p_i[k])/np.log(p_i[k+1]/p_i[k])
     return p
 
