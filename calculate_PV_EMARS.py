@@ -18,11 +18,11 @@ def calculate_pfull(psurf, ak, bk):
             Sigma-levels
     """
 
-    p_i = psurf*bk + ak
+    ph = psurf * bk + ak
+    ps = ph.shift(phalf = -1)
+    pf = (ps-ph)/np.log(ps/ph)
 
-    p = xr.zeros_like(ak)
-    p[k] = (p_i[k+1]-p_i[k])/np.log(p_i[k+1]/p_i[k])
-    return p
+    return pf
 
 if __name__ == "__main__":
     ### choose your desired isobaric levels, in Pascals
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     for f in infiles:
         print(f)
     os.chdir(home)
-    isenpath = inpath
-    isopath = inpath
+    isenpath = '/disco/share/sh1293/EMARS_data/Isentropic/'
+    isopath = '/disco/share/sh1293/EMARS_data/Isobaric/'
     #inpath = ''
     #outpath = 'MACDA_data/'
     #figpath = 'OpenMARS_figs/'
