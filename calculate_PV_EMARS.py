@@ -18,7 +18,7 @@ def calculate_pfull(psurf, ak, bk):
             Sigma-levels
     """
 
-    p_i = ps*bk + ak
+    p_i = psurf*bk + ak
 
     p = xr.zeros_like()
     p[k] = (p_i[k+1]-p_i[k])/np.log(p_i[k+1]/p_i[k])
