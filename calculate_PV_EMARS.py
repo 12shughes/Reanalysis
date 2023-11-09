@@ -52,8 +52,8 @@ if __name__ == "__main__":
     for f in infiles:
         print(f)
     os.chdir(home)
-    isenpath = '~/Reanalysis'
-    isopath = '~/Reanalysis'
+    isenpath = inpath
+    isopath = inpath
     #inpath = ''
     #outpath = 'MACDA_data/'
     #figpath = 'OpenMARS_figs/'
