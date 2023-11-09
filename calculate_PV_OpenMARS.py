@@ -57,7 +57,7 @@ if __name__ == "__main__":
     isopath = inpath
     #inpath = ''
     #outpath = 'MACDA_data/'
-    figpath = '~/Reanalysis'
+    #figpath = '~/Reanalysis'
     
     plevs = plev1+plev2+plev3
     
