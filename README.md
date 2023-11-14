@@ -1,3 +1,3 @@
-# Emars_analysis
+# Reanalysis
 
-This is me looking at the EMARS data and trying to make some plots with it 
+A variety of code looking at different reanalysis data and trying to make plots with it
