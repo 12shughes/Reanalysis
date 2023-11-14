@@ -43,8 +43,12 @@ if __name__ == "__main__":
     theta0 = 200.
     kappa = 1/4.0
     p0 = 610.
+
+    omega = 7.08822e-05
+    g = 3.72076
+    rsphere = 3.3962e6
     
-    inpath = '/disco/share/sh1293/EMARS_data/'
+    inpath = '/disco/share/sh1293/EMARS_data/Regrid/'
     #infiles = os.listdir(inpath)
     home = os.getenv("HOME")
     os.chdir(inpath)
@@ -61,15 +65,15 @@ if __name__ == "__main__":
     plevs = plev1+plev2+plev3
     
     for f in infiles:
-        d = xr.open_mfdataset(inpath+f, decode_times=False, concat_dim='time',
+        ds = xr.open_mfdataset(inpath+f, decode_times=False, concat_dim='time',
                                combine='nested',chunks={'time':'auto'})
     
         ens_list = []
-        #tmp1 = ds.sel(lon=-180.)
-        #tmp1 = tmp1.assign_coords({'lon':179.9999})
-        #ens_list.append(ds)
-        #ens_list.append(tmp1)
-        #d = xr.concat(ens_list, dim='lon')
+        tmp1 = ds.sel(lon=-180.)
+        tmp1 = tmp1.assign_coords({'lon':179.9999})
+        ens_list.append(ds)
+        ens_list.append(tmp1)
+        d = xr.concat(ens_list, dim='lon')
     
         d = d.astype('float32')
         d = d[['Ls','MY','ps','T','U','V','ak','bk']]
@@ -89,7 +93,7 @@ if __name__ == "__main__":
         #prs = d.pfull
         #print(np.shape(prs))
         prs = prsset.prs
-        print(prs)
+        #print(prs)
         prs = prs.transpose('time','pfull','lat','lon')
         #prs = prs.reset_coords('variables', drop = True)
     
@@ -100,12 +104,13 @@ if __name__ == "__main__":
         print('Calculating potential temperature...')
         thta = PV.potential_temperature(d.temp, d.pfull,
                                              kappa = kappa, p0 = p0)
+        thta = thta.transpose('time','pfull','lat','lon')
     
         print('Interpolating variables onto isobaric levels...')
-        print('dims of xp')
-        print(np.shape(prs.compute()))
-        print('dims of var')
-        print(np.shape(temp))
+        #print('dims of xp')
+        #print(np.shape(prs.compute()))
+        #print('dims of var')
+        #print(np.shape(temp))
         tmp, uwnd, vwnd, theta = PV.log_interpolate_1d(plevs, prs.compute(),
                                                         temp, uwind, vwind, thta,
                                                         axis = 1)
