@@ -464,7 +464,7 @@ def potential_vorticity_baroclinic(uwnd, vwnd, theta, coord, **kwargs):
     planvort = w.planetaryvorticity(omega=omega)
     absvort = relvort + planvort
 
-    dthtady, dthtadx = w.gradient(theta.fillna(0))
+    dthtadx, dthtady = w.gradient(theta.fillna(0))
     dthtadx = dthtadx.where(dthtadx!=0, other=np.nan)
     dthtady = dthtady.where(dthtady!=0, other=np.nan)
 

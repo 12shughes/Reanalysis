@@ -61,6 +61,7 @@ if __name__ == "__main__":
     #figpath = '~/Reanalysis'
     
     plevs = plev1+plev2+plev3
+    print(plevs)
     
     for f in infiles:
         if not exists(isenpath + 'isentropic_' + f) or not exists(isopath + 'isobaric_' + f):
@@ -107,10 +108,11 @@ if __name__ == "__main__":
             uwnd_trans = d_iso.uwnd.transpose('lat','lon','plev','time')
             vwnd_trans = d_iso.vwnd.transpose('lat','lon','plev','time')
             tmp_trans = d_iso.tmp.transpose('lat','lon','plev','time')
+            theta_trans = d_iso.theta.transpose('lat','lon','plev','time')
         
             print('Calculating potential vorticity on isobaric levels...')
             PV_iso = PV.potential_vorticity_baroclinic(uwnd_trans, vwnd_trans,
-                        d_iso.theta, 'plev', omega = omega, g = g, rsphere = rsphere)
+                        theta_trans, 'plev', omega = omega, g = g, rsphere = rsphere)
             PV_iso = PV_iso.transpose('time','plev','lat','lon')
         
             d_iso["PV"] = PV_iso
