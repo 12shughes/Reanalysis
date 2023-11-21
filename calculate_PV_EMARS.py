@@ -66,7 +66,7 @@ if __name__ == "__main__":
     plevs = plev1+plev2+plev3
     
     for f in infiles:
-        if not exists(isenpath + 'isentropic_)' + f) or not exists(isopath + 'isobaric_' + f):
+        if not exists(isenpath + 'isentropic_' + f) or not exists(isopath + 'isobaric_' + f):
             print(f)
             ds = xr.open_mfdataset(inpath+f, decode_times=False, concat_dim='time',
                                 combine='nested',chunks={'time':'auto'})
