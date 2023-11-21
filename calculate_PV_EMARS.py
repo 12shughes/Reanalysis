@@ -158,7 +158,7 @@ if __name__ == "__main__":
             if interpolate_isentropic==True:
                 print('Interpolating variables onto isentropic levels...')
                 
-                isent_prs, isent_PV, isent_u, isent_tmp = PV.isent_interp(isentlevs, d_iso.plev,
+                isent_prs, isent_tmp, isent_PV, isent_u = PV.isent_interp(isentlevs, d_iso.plev,
                                                                 d_iso.tmp, PV_iso, d_iso.uwnd,
                                                                 axis = 1,temperature_out=True)
         
