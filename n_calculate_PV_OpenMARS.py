@@ -24,9 +24,10 @@ def netcdf_prep(ds):
 
     d = xr.concat(ens_list, dim='lon')
     d = d.astype('float32')
-    d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
-    # pressure is in hPa, must be in Pa for calculations
-    d["pfull"] = d.pfull*100
+    # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
+    d = 
+    # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
+    # d["pfull"] = d.pfull*100
     return d
 
 def calculate_PV(d, **kwargs):
