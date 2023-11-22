@@ -11,6 +11,19 @@ import pot_vort
 from multiprocessing import Pool, cpu_count
 import windspharm.xarray as windx
 
+
+def calculate_pfull(psurf, siglev):
+    r"""Calculates full pressures using surface pressures and sigma coordinates
+
+    psurf  : array-like
+            Surface pressures
+    siglev : array-like
+            Sigma-levels
+    """
+
+    return psurf*siglev
+
+
 def netcdf_prep(ds):
     '''
     Appends longitude 360 to file and reduces file to only variables necessary
@@ -25,7 +38,12 @@ def netcdf_prep(ds):
     d = xr.concat(ens_list, dim='lon')
     d = d.astype('float32')
     # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
-    d = 
+    d = d[['Ls','MY','ps','temp','u','v']]
+    d = d.rename_vars({'u':'ucomp','v':'vcomp'})
+
+    prs = calculate_pfull(d.ps, d.lev)
+    prs = prs.transpose('time','lev','lat','lon')
+    d['pfull'] = prs
     # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
     # d["pfull"] = d.pfull*100
     return d
