@@ -39,14 +39,38 @@ def netcdf_prep(ds):
     d = d.astype('float32')
     # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
     d = d[['Ls','MY','ps','temp','u','v']]
-    d = d.rename_vars({'u':'ucomp','v':'vcomp'})
 
     prs = calculate_pfull(d.ps, d.lev)
     prs = prs.transpose('time','lev','lat','lon')
-    d['pfull'] = prs
+
     # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
     # d["pfull"] = d.pfull*100
-    return d
+
+    return d, prs
+
+
+def isobaric_interp(ds, prs):
+    '''
+    Takes the prepped netCDF4 and interps it to isobaric levels
+    '''
+    plev1 = [float(i/10) for i in range(1,100,5)]
+    plev2 = [float(i) for i in range(10,100,10)]
+    plev3 = [float(i) for i in range(100,650,50)]
+    plevs = plev1+plev2+plev3
+
+    tmp, uwnd, vwnd = pot_vort.log_interpolate_1d(plevs, prs.compute(),
+                                                    ds.temp, ds.u, ds.v,
+                                                    axis = 1)
+    d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
+                        "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd)},
+                        coords = {"time": ds.time,
+                                "pfull": plevs,
+                                "lat" : ds.lat,
+                                "lon" : ds.lon})
+    d_iso.transpose('lat','lon','pfull','time')
+    d_iso.sortby('lat', ascending=False)
+    return d_iso
 
 def calculate_PV(d, **kwargs):
     if d.pfull.max().values < 10:
@@ -64,9 +88,12 @@ def calculate_PV(d, **kwargs):
     rsphere = kwargs.pop('rsphere', 3.3962e6)    # mean planetary radius
     dim     = kwargs.pop(    'dim', 'pfull')
 
+    print('calculating theta')
     theta = pot_vort.potential_temperature(
         d.pfull, d.temp, kappa=kappa, p0=p0,
     )
+
+    print('calculating PV')
     PV_isobaric = pot_vort.potential_vorticity_baroclinic(
         d.ucomp, d.vcomp, theta, dim, omega=omega, g=g, rsphere=rsphere,
     )
@@ -97,24 +124,21 @@ def interpolate_to_isentropic(d, **kwargs):
     if kappa == 0.25:
         d = d.transpose('time', 'pfull', 'lat', 'lon')
 
-        pres, PV_i, grdSpv_i, u_i, v_i, tracer_i, grd_tr_i, \
+        pres, PV_i, u_i, v_i, \
          = pot_vort.isent_interp(
             thetalevs, d.pfull, d.temp, d.PV,
-            d.grdSpv, d.ucomp,
-            d.vcomp, d.test_tracer,
-            d.grdStr, #d.omega.to_numpy(),
-            #d.lh_rel, d.dt_tg_lh_condensation,
+            d.ucomp, d.vcomp,
             axis = 1)
 
         d_isentropic = xr.Dataset({
             "pressure"             : (("time","level","lat","lon"), pres/100),
             "PV"                   : (("time","level","lat","lon"), PV_i),
-            "grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
+            #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
             "ucomp"                : (("time","level","lat","lon"), u_i),
             "vcomp"                : (("time","level","lat","lon"), v_i),
             #"omega"                : (("time","level","lat","lon"), omega_i),
-            "test_tracer"          : (("time","level","lat","lon"), tracer_i),
-            "grdStr"               : (("time","level","lat","lon"), grd_tr_i),
+            #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
+            #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
             #"lh_rel"               : (("time","level","lat","lon"), lh_rel_i),
             #"dt_tg_lh_condensation": (("time","level","lat","lon"), dt_tg_lh_condensation_i),
             },

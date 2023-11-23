@@ -87,8 +87,8 @@ def find_bounding_indices(arr, values, axis, from_below=True):
     indices_shape[axis] = len(values)
 
     # Storage for the found indices and the mask for good locations
-    indices = np.empty(indices_shape, dtype=np.int)
-    good = np.empty(indices_shape, dtype=np.bool)
+    indices = np.empty(indices_shape, dtype=np.int_)
+    good = np.empty(indices_shape, dtype=np.bool_)
 
     # Used to put the output in the proper location
     store_slice = [slice(None)] * arr.ndim
@@ -98,7 +98,7 @@ def find_bounding_indices(arr, values, axis, from_below=True):
     for level_index, value in enumerate(values):
         # Look for changes in the value of the test for <= value in consecutive points
         # Taking abs() because we only care if there is a flip, not which direction.
-        switches = np.abs(np.diff((arr <= value).astype(np.int), axis=axis))
+        switches = np.abs(np.diff((arr <= value).astype(np.int_), axis=axis))
 
         # Good points are those where it's not just 0's along the whole axis
         good_search = np.any(switches, axis=axis)
@@ -464,7 +464,7 @@ def potential_vorticity_baroclinic(uwnd, vwnd, theta, coord, **kwargs):
     planvort = w.planetaryvorticity(omega=omega)
     absvort = relvort + planvort
 
-    dthtady, dthtadx = w.gradient(theta.fillna(0))
+    dthtadx, dthtady = w.gradient(theta.fillna(0))
     dthtadx = dthtadx.where(dthtadx!=0, other=np.nan)
     dthtady = dthtady.where(dthtady!=0, other=np.nan)
 
