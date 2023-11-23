@@ -8,7 +8,7 @@ import xarray as xr
 
 opath = '/disco/share/sh1293/OpenMARS_data/Raw/'
 print('opening data')
-initds = xr.open_mfdataset(opath + '*.nc')
+initds = xr.open_mfdataset(opath + 'openmars*.nc')
 print('prepping ds')
 midds, prs = calc.netcdf_prep(initds)
 print('interpolating to isobaric')
