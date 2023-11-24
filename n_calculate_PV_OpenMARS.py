@@ -63,12 +63,12 @@ def isobaric_interp(ds, prs):
                                                     axis = 1)
     d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
                         "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
-                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),
-                        "Ls" : (("time"), ds.Ls)},
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),},
                         coords = {"time": ds.time,
                                 "pfull": plevs,
                                 "lat" : ds.lat,
                                 "lon" : ds.lon})
+    d_iso['Ls'] = ds.Ls
     d_iso.transpose('lat','lon','pfull','time')
     d_iso.sortby('lat', ascending=False)
     return d_iso
@@ -137,7 +137,7 @@ def interpolate_to_isentropic(d, **kwargs):
             #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
             "ucomp"                : (("time","level","lat","lon"), u_i),
             "vcomp"                : (("time","level","lat","lon"), v_i),
-            "Ls"                   : (("time"), d.Ls),
+            #"Ls"                   : (("time"), d.Ls),
             #"omega"                : (("time","level","lat","lon"), omega_i),
             #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
             #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
@@ -150,6 +150,7 @@ def interpolate_to_isentropic(d, **kwargs):
                 "lat"  : d.lat,
                 "lon"  : d.lon
                 })
+        d_isentropic['Ls'] = d.Ls
     else: ## just simple way to choose between earth and mars for now
         d = d.transpose('pfull', 'latitude', 'longitude')
 
