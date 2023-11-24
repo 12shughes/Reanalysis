@@ -63,7 +63,8 @@ def isobaric_interp(ds, prs):
                                                     axis = 1)
     d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
                         "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
-                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd)},
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),
+                        "Ls" : (("time"), ds.Ls)},
                         coords = {"time": ds.time,
                                 "pfull": plevs,
                                 "lat" : ds.lat,
@@ -136,6 +137,7 @@ def interpolate_to_isentropic(d, **kwargs):
             #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
             "ucomp"                : (("time","level","lat","lon"), u_i),
             "vcomp"                : (("time","level","lat","lon"), v_i),
+            "Ls"                   : (("time"), d.Ls),
             #"omega"                : (("time","level","lat","lon"), omega_i),
             #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
             #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
