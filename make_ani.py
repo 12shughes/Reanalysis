@@ -6,5 +6,5 @@ os.system('convert -delay 3 /disco/share/sh1293/OpenMARS_data/Isentropic/Plots/c
                 #/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.mp4')
 
 (ffmpeg.input('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.gif')
-.output('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.mp4')
-.run())
+    .output('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.mp4')
+    .run())
