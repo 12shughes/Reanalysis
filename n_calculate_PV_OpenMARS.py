@@ -30,8 +30,8 @@ def netcdf_prep(ds):
     for PV calculation. Also converts pressure to Pa.
     '''
     ens_list = []
-    tmp1 = ds.sel(lon=0.)
-    tmp1 = tmp1.assign_coords({'lon':359.9999})
+    tmp1 = ds.sel(lon=-180.)
+    tmp1 = tmp1.assign_coords({'lon':179.9999})
     ens_list.append(ds)
     ens_list.append(tmp1)
 
