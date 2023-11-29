@@ -8,7 +8,7 @@ import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 
 path = '/disco/share/sh1293/OpenMARS_data/Isentropic/'
-my = 27
+my = 28
 files = glob.glob(path + '*my%.0f.nc' %(my))
 for file in files:
     ds = xr.open_dataset(file)
@@ -41,9 +41,9 @@ contourplot = ax.contourf(d[0,:,:].lon, d[0,:,:].lat, d[0,:,:].values, transform
 cbar = plt.colorbar(contourplot)
 
 print('creating animation')
-ani = animation.FuncAnimation(fig=fig, func=animate, frames = int(len(d[:,0,0])/4), interval = 0.1)
+ani = animation.FuncAnimation(fig=fig, func=animate, frames = int(len(d[:,0,0]/400)), interval = 0.1)
 
 fig.tight_layout()
 
 print('saving animation')
-ani.save('/home/links/sh1293/Reanalysis/plot.gif', writer = 'pillow')
+ani.save('/home/links/sh1293/Reanalysis/animation_my%.0f.gif' %(my), writer = 'pillow')
