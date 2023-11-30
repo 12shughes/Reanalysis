@@ -1,6 +1,5 @@
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 import functions as fcs
 
 islev = 300
@@ -15,8 +14,8 @@ for year in years:
     print('Organising data')
     ds = ds.where(ds.level == islev, drop = True)
     ds['Ls'] = ds.Ls[:,0,0].drop_vars('lon').drop_vars('level')
-    ds = ds.set_index(time='Ls')
     da = ds.PV * 10**4
+    da = da.assign_coords({'Ls':ds.Ls})
     print('Lait scaling')
     qs = fcs.lait_scale(da)
     print('Eddy enstrophy calculation')
