@@ -8,6 +8,7 @@ def lait_scale(q, **kwargs):
     '''
     theta0 = kwargs.pop('theta0', 200)
     kappa = kwargs.pop('kappa', 1/4.)
+
     scaled = q * (q.level / theta0)**(-(1+1/kappa))
     return scaled
 
@@ -17,6 +18,7 @@ def eddy_enstrophy(q, **kwargs):
     Calculate the eddy enstrophy from dataarray q
     '''
     latmin = kwargs.pop('latmin', 60)
+
     q = q.where(q.lat >= latmin, drop = True)
     q = q.where(q.lon < 179.5, drop = True)
     qbar = q.mean(dim = 'lon')
@@ -28,6 +30,6 @@ def eddy_enstrophy(q, **kwargs):
 
     qp = qprime **2 * cos
 
-    Z = qp.sum(dim = 'lat').sum(dim = 'lon') / cos.sum(dim = 'lat').sum('lon')
+    Z = qp.sum(dim = 'lat').sum(dim = 'lon') / (cos.sum(dim = 'lat') * 2 * np.pi)
     
     return Z
