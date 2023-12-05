@@ -10,6 +10,6 @@ for year in years:
     #os.system('ffmpeg -f gif -i /disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.gif \
                     #/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.mp4')
 
-    (ffmpeg.input('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_%02d28.gif' %(year))
+    (ffmpeg.input('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY%02d.gif' %(year))
         .output('/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY%02d.mp4' %(year))
         .run())
