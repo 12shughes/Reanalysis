@@ -19,3 +19,10 @@ Code to combine pngs into an animation and save as a gif
 
 **[functions](functions.py):**
 Functions I've written for making PV calculations
+
+
+**[eddy_enstrophy_calc](eddy_enstrophy_calc.py):**
+Script to calculate eddy enstrophy for specified isentropic level (000 == all)
+
+**[playing_eddy_enstrophy_plots](playing_eddy_enstrophy_plots.ipynb):**
+Notebook to make eddy enstrophy plots
