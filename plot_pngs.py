@@ -17,11 +17,12 @@ from matplotlib import (cm, colors)
 
 path = '/disco/share/sh1293/OpenMARS_data/Isentropic/'
 
-years = [27, 29, 30, 31, 32, 33, 34, 35, 36]
+years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
 
 #my = 28
 
 for my in years:
+    print(my)
     files = glob.glob(path + '*my%.0f.nc' %(my))
     list = range(361)
     for file in files:
