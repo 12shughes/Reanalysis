@@ -12,8 +12,11 @@ for year in years:
     print('Opening dataset')
     ds = xr.open_dataset(path + 'isentropic_openmars_my%02d.nc' %(year))
     print('Organising data')
-    #ds = ds.where(ds.level == islev, drop = True)
-    ds['Ls'] = ds.Ls[:,0].drop_vars('lon')
+    if islev != 000:
+        ds = ds.where(ds.level == islev, drop = True)
+        ds['Ls'] = ds.Ls[:,0,0].drop_vars('lon').drop_vars('level')
+    elif islev == 000:
+        ds['Ls'] = ds.Ls[:,0].drop_vars('lon')
     da = ds.PV * 10**4
     da = da.assign_coords({'Ls':ds.Ls})
     print('Lait scaling')
