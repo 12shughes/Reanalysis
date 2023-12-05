@@ -2,7 +2,7 @@ import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
 
-islev = 300
+islev = 000
 
 years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
 path = '/disco/share/sh1293/OpenMARS_data/Eddy_enstrophy/'
@@ -17,5 +17,6 @@ for year in years:
     i+=1
 
 plt.figure(figsize = (24, 8))
-plt.plot(d.time, d.values)
+X, Y = np.meshgrid(d.time, d.level)
+plt.scatter(X, Y, c = d.values)
 plt.savefig(path + '/Plots/plot.pdf')
