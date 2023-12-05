@@ -16,3 +16,6 @@ Code to create a png plot of PV on polar stereographic plot for every timestep
 
 **[make_ani](make_ani.py):**
 Code to combine pngs into an animation and save as a gif
+
+**[functions](functions.py):**
+Functions I've written for making PV calculations
