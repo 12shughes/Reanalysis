@@ -23,10 +23,10 @@ for type in ['Control/']:
         ds = ds.assign_coords(lon=(((ds.lon + 180) % 360) - 180)).sortby('lon')
         if type == 'Analysis/':
             ds = ds.assign_coords(lonv=(((ds.lonv + 180) % 360) - 180)).sortby('lonv')
-        outfile = ds.interp(lon=lons, lonv = lons, wrap=True)
-        if type == 'Analysis/':
+            outfile = ds.interp(lon=lons, lonv = lons, wrap=True)
             outfile = outfile.interp(lat=lats, latu=lats)
         elif type == 'Control/':
+            outfile = ds.interp(lon=lons, wrap=True)
             outfile = outfile.interp(lat=lats)
         #outfile = outfile.transpose('time', 'lat', 'lon', 'ilev', 'latu', 'lonv')
         outfile.to_netcdf(empath + type + 'Regrid/' + infile)
