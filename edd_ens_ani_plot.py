@@ -12,10 +12,10 @@ from matplotlib import gridspec
 
 path = '/disco/share/sh1293/OpenMARS_data/'
 
-years = [28] #[27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+years = [28, 29, 30, 31, 32, 33, 34, 35]
 
-Lsmin = 240
-Lsmax = 300
+Lsmin = 200
+Lsmax = 340
 islev = 300
 
 #my = 28
@@ -60,10 +60,10 @@ for my in years:
 
     if type == 'contourf':
         for i in range(len(d[:,0,0].values)):
-            print('Making plot %03d' %(i+1))
+            print('Making plot MY%02dLs%04f' %(my, d.time[i].values))
             #fig, ax = plt.subplots(figsize = (10,10), subplot_kw={'projection':ccrs.NorthPolarStereo()})
             #fig, (ax, ax1) = plt.subplots(1, 2, figsize = (15,10), gridspec_kw={'width_ratios': [1,2]}, subplot_kw={'projection':ccrs.NorthPolarStereo()})
-            fig = plt.figure(figsize = (10, 4))
+            fig = plt.figure(figsize = (20, 8))
             fig.suptitle('MY%02d Ls%.4f' %(my, d.time[i].values))
             spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 1.5])
             ax = fig.add_subplot(spec[0], projection = ccrs.NorthPolarStereo())
@@ -81,6 +81,8 @@ for my in years:
             ax1.set_ylim(bottom = -3, top = ymax)
             ax1.set_ylabel('Eddy enstrophy')
             ax1.set_xlabel('Ls')
+            ax1.plot(edfile.Ls[i], edfile.values[i], marker = '.', color = 'red', ms = 10)
+            ax1.plot([xmin - 10, edfile.Ls[i]], [edfile.values[i]] * 2, color = 'red', alpha = 0.5, linestyle = '--')
 
             fig.tight_layout()
             plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
