@@ -21,8 +21,12 @@ for type in ['Control/']:
         print(infile)
         ds = xr.open_dataset(empath + type + 'Raw/' + infile)
         ds = ds.assign_coords(lon=(((ds.lon + 180) % 360) - 180)).sortby('lon')
-        ds = ds.assign_coords(lonv=(((ds.lonv + 180) % 360) - 180)).sortby('lonv')
+        if type == 'Analysis/':
+            ds = ds.assign_coords(lonv=(((ds.lonv + 180) % 360) - 180)).sortby('lonv')
         outfile = ds.interp(lon=lons, lonv = lons, wrap=True)
-        outfile = outfile.interp(lat=lats, latu=lats)
+        if type == 'Analysis/':
+            outfile = outfile.interp(lat=lats, latu=lats)
+        elif type == 'Control/':
+            outfile = outfile.interp(lat=lats)
         #outfile = outfile.transpose('time', 'lat', 'lon', 'ilev', 'latu', 'lonv')
         outfile.to_netcdf(empath + type + 'Regrid/' + infile)
