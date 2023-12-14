@@ -3,13 +3,13 @@
 A variety of code looking at different reanalysis data and trying to make plots with it
 
 **[Processing.py](processing.py):**
-Script to call functions to process Raw OpenMARS data and save with calculated PV values on isobaric and isentropic levels
+Script to call functions to process Raw OpenMARS data and save with calculated PV values on isobaric and isentropic levels (this is the script that is run for OpenMARS)
 
 **[PVmodule.py](PVmodule.py):**
-The functions for making PV calculations
+The functions for making PV calculations (this is called by n_calc...)
 
 **[n_calculate_PV_OpenMARS.py](n_calculate_PV_OpenMARS.py):**
-The code to process the OpenMARS data using functions from PVmodule
+The code to process the OpenMARS data using functions from PVmodule (this is called by processing.py)
 
 **[plot_pngs.py](plots_pngs.py):**
 Code to create a png plot of PV on polar stereographic plot for every timestep
