@@ -28,7 +28,7 @@ def calculate_pfull(psurf, ak, bk):
     return pf
 
 
-def netcdf_prep(ds):
+def netcdf_prep(ds, type):
     '''
     Appends longitude 360 to file and reduces file to only variables necessary
     for PV calculation. Also converts pressure to Pa.
@@ -41,18 +41,23 @@ def netcdf_prep(ds):
 
     d = xr.concat(ens_list, dim='lon')
     d = d.astype('float32')
-    # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
-    d = d[['Ls','MY','ps','temp','u','v']]
+    if type == 'Control/':
+        d = d.rename_vars({'t':'temp'})
+    elif type == 'Analysis/':
+        d = d.rename_vars({'T':'temp','U':'u','V':'v'})
+
 
     prs = calculate_pfull(d.ps, d.ak, d.bk).dropna('phalf')
     prsset = prs.to_dataset(name = 'prs')
     prsset = prsset.assign_coords({'pfull':d.pfull})
     prsset['prs'] = prsset['prs'].swap_dims({'phalf':'pfull'})
     prsset = prsset.drop_dims('phalf')
+    prs = prsset.prs
     prs = prs.transpose('time','pfull','lat','lon')
 
     # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
     # d["pfull"] = d.pfull*100
+    d = d[['Ls','MY','ps','temp','u','v']]
 
     return d, prs
 
