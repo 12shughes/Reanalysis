@@ -12,7 +12,7 @@ from multiprocessing import Pool, cpu_count
 import windspharm.xarray as windx
 
 
-def calculate_pfull(psurf, siglev):
+def calculate_pfull(psurf, ak, bk):
     r"""Calculates full pressures using surface pressures and sigma coordinates
 
     psurf  : array-like
@@ -21,7 +21,11 @@ def calculate_pfull(psurf, siglev):
             Sigma-levels
     """
 
-    return psurf*siglev
+    ph = psurf * bk + ak
+    ps = ph.shift(phalf = -1)
+    pf = (ps-ph)/np.log(ps/ph)
+
+    return pf
 
 
 def netcdf_prep(ds):
@@ -40,8 +44,12 @@ def netcdf_prep(ds):
     # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
     d = d[['Ls','MY','ps','temp','u','v']]
 
-    prs = calculate_pfull(d.ps, d.lev)
-    prs = prs.transpose('time','lev','lat','lon')
+    prs = calculate_pfull(d.ps, d.ak, d.bk).dropna('phalf')
+    prsset = prs.to_dataset(name = 'prs')
+    prsset = prsset.assign_coords({'pfull':d.pfull})
+    prsset['prs'] = prsset['prs'].swap_dims({'phalf':'pfull'})
+    prsset = prsset.drop_dims('phalf')
+    prs = prs.transpose('time','pfull','lat','lon')
 
     # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
     # d["pfull"] = d.pfull*100
