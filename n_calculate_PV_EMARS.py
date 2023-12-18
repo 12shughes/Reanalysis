@@ -41,6 +41,10 @@ def netcdf_prep(ds, type):
 
     d = xr.concat(ens_list, dim='lon')
     d = d.astype('float32')
+    
+    # pressure is in hPa, must be in Pa for calculations - need to do this for EMARS as pressure (pfull) is in mb
+    d["pfull"] = d.pfull*100
+
     if type == 'Control/':
         d = d.rename_vars({'t':'temp'})
     elif type == 'Analysis/':
@@ -55,8 +59,7 @@ def netcdf_prep(ds, type):
     prs = prsset.prs
     prs = prs.transpose('time','pfull','lat','lon')
 
-    # pressure is in hPa, must be in Pa for calculations - need to do this for EMARS as pressure (pfull) is in mb
-    d["pfull"] = d.pfull*100
+
     d = d[['Ls','MY','ps','temp','u','v']]
 
     return d, prs
