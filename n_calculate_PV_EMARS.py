@@ -55,8 +55,8 @@ def netcdf_prep(ds, type):
     prs = prsset.prs
     prs = prs.transpose('time','pfull','lat','lon')
 
-    # pressure is in hPa, must be in Pa for calculations - not the case for OpenMARS data
-    # d["pfull"] = d.pfull*100
+    # pressure is in hPa, must be in Pa for calculations - need to do this for EMARS as pressure (pfull) is in mb
+    d["pfull"] = d.pfull*100
     d = d[['Ls','MY','ps','temp','u','v']]
 
     return d, prs
