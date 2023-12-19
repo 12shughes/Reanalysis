@@ -2,7 +2,7 @@
 
 A variety of code looking at different reanalysis data and trying to make plots with it
 
-**[Processing.py](processing.py):**
+**[processing_openmars.py](processing_openmars.py):**
 Script to call functions to process Raw OpenMARS data and save with calculated PV values on isobaric and isentropic levels (this is the script that is run for OpenMARS)
 
 **[PVmodule.py](PVmodule.py):**
@@ -31,3 +31,9 @@ Python file to save OpenMARS grid for regridding EMARS data
 
 **[regridding.sh](regridding.sh):**
 Bash file for regridding EMARS data to OpenMARS lat lon
+
+**[processing_emars.py](processing_emars.py):**
+Script to call functions to process Regridded EMARS data and save with calculated PV values on isobaric and isentropic levels
+
+**[n_calculate_PV_EMARS.py](n_calculate_PV_EMARS.py):**
+The code to process the EMARS data using functions from PVmodule (this is called by processing.py)
