@@ -24,7 +24,10 @@ Functions I've written for making PV calculations
 Script to calculate eddy enstrophy for specified isentropic level (000 == all)
 
 **[playing_eddy_enstrophy_plots.ipynb](playing_eddy_enstrophy_plots.ipynb):**
-Notebook to make eddy enstrophy plots
+Notebook to make eddy enstrophy plots (the best ones now incorporated in the python script below)
+
+**[eddy_enstrophy_plot.py](eddy_enstrophy_plot.py):**
+Script to make eddy enstrophy plots for scaled and non-scaled data
 
 **[save_grid.py](save_grid.py):**
 Python file to save OpenMARS grid for regridding EMARS data
