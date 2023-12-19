@@ -111,19 +111,9 @@ def calculate_PV(d, **kwargs):
     )
 
     print('calculating PV')
-    print('Splitting year in half')
-    d1 = d.where((d.Ls<=180.).compute(), drop = True)
-    d2 = d.where((d.Ls>180.).compute(), drop = True)
-    print('PV for first half')
-    PV_isobaric_1 = pot_vort.potential_vorticity_baroclinic(
-        d1.ucomp, d1.vcomp, theta, dim, omega=omega, g=g, rsphere=rsphere,
+    PV_isobaric = pot_vort.potential_vorticity_baroclinic(
+        d.ucomp, d.vcomp, theta, dim, omega=omega, g=g, rsphere=rsphere,
     )
-    print('PV for second half')
-    PV_isobaric_2 = pot_vort.potential_vorticity_baroclinic(
-        d2.ucomp, d2.vcomp, theta, dim, omega=omega, g=g, rsphere=rsphere,
-    )
-    print('combining PV')
-    PV_isobaric = xr.concat([PV_isobaric_1, PV_isobaric_2], dim = 'time')
     return theta, PV_isobaric
 
 def interpolate_to_isentropic(d, **kwargs):
