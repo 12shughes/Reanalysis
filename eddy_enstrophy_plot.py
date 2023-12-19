@@ -1,22 +1,32 @@
-import xarray as xr
-import numpy as np
-import matplotlib.pyplot as plt
+import functions as fcs
 
-islev = 000
 
-years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
-path = '/disco/share/sh1293/OpenMARS_data/Eddy_enstrophy/'
-i = 0
-for year in years:
-    da = xr.open_dataarray(path + 'lev%03d_my%02d.nc' %(islev, year))
-    da = da.assign_coords({'MY':year})
-    if i == 0:
-        d = da
-    else:
-        d = xr.concat([d, da], dim = 'time')
-    i+=1
 
-plt.figure(figsize = (24, 8))
-X, Y = np.meshgrid(d.time, d.level)
-plt.scatter(X, Y, c = d.values)
-plt.savefig(path + '/Plots/plot.pdf')
+# dataset can be OpenMARS_data, EMARS_data/Control, EMARS_data/Analysis
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+while datachoice not in ['o', 'ec', 'ea']:
+    print('Incorrect input')
+    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+
+if datachoice == 'o':
+    dataset = 'OpenMARS_data'
+    years = [28, 29, 30, 31, 32, 33, 34, 35]
+elif datachoice == 'ec':
+    dataset = 'EMARS_data/Control'
+    years = [24, 25, 26]
+elif datachoice == 'ea':
+    dataset = 'EMARS_data/Analysis'
+    years = [24, 25, 26, 27, 28, 29, 30, 31, 32]
+
+
+path = '/disco/share/sh1293/%s/Eddy_enstrophy/' %(dataset)
+fcs.eddy_enstrophy_contourf_plot(path, years)
+fcs.eddy_enstrophy_contourf_plot(path, years, scaled=True)
+fcs.eddy_enstrophy_climatology_plot(path, years)
+fcs.eddy_enstrophy_climatology_plot(path, years, scaled=True)
+
+islev = int(input('Input chosen isentropic level for time series plot: '))
+fcs.eddy_enstrophy_time_series(path, years, islev)
+fcs.eddy_enstrophy_time_series(path, years, islev, scaled=True)
+
+
