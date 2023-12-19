@@ -4,18 +4,21 @@ import functions as fcs
 
 islev = 000
 # dataset can be OpenMARS_data, EMARS_data/Control, EMARS_data/Analysis
-dataset = raw_input('Enter directory name (from OpenMARS_data, EMARS_data/Control, EMARS_data/Analysis): ')
-for dataset not in ['OpenMARS_data', 'EMARS_data/Control', 'EMARS_data/Analysis']:
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+while datachoice not in ['o', 'ec', 'ea']:
     print('Incorrect input')
-    dataset = raw_input('Enter directory name (from OpenMARS_data, EMARS_data/Control, EMARS_data/Analysis): ')
+    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
 
-if dataset == 'OpenMARS_data':
+if datachoice == 'o':
+    dataset = 'OpenMARS_data'
     set = 'openmars'
     years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
-elif dataset == 'EMARS_data/Control':
+elif datachoice == 'ec':
+    dataset = 'EMARS_data/Control'
     set = 'emars'
     years = [24, 25, 26, 27]
-elif dataset == 'EMARS_data/Analysis':
+elif datachoice == 'ea':
+    dataset = 'EMARS_data/Analysis'
     set = 'emars'
     years = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
 
