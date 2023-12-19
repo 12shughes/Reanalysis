@@ -52,3 +52,5 @@ for year in years:
             sc_edd_ens = fcs.scaled_eddy_enstrophy(qs)
             print('Saving')
             sc_edd_ens.to_netcdf('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev%03d_my%02d.nc' %(dataset, islev, year))
+    else:
+        print('Calculations already done')
