@@ -39,7 +39,7 @@ for type in ['Control/', 'Analysis/']:
         theta1, d_isobaric1['PV'] = calc.calculate_PV(d_isobaric1)
         print('Second half of year')
         theta2, d_isobaric2['PV'] = calc.calculate_PV(d_isobaric2)
-        print('Combining data')\
+        print('Combining data')
         theta = xr.concat([theta1, theta2], dim='time')
         d_isobaric = xr.concat([d_isobaric1, d_isobaric2], dim='time')
         print('saving isobaric')
