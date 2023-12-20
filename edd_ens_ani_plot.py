@@ -30,6 +30,11 @@ elif datachoice == 'ea':
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
+scaled = input('Run for scaled data, yes or no: ')
+while scaled not in ['yes', 'no']:
+    print('Incorrect input')
+    scaled = input('Run for scaled data, yes or no: ')
+
 Lsmin = 200
 Lsmax = 340
 islev = 300
@@ -49,7 +54,10 @@ for my in years:
         d = d.set_index(time='Ls')
         d = d.where(d.time >= Lsmin, drop = True).where(d.time <= Lsmax, drop = True)
     print('opening eddy enstrophy')
-    edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/lev000_my%02d.nc' %(dataset, my))
+    if scaled == 'yes':
+        edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev000_my%02d.nc' %(dataset, my))
+    elif scaled == 'no':
+        edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/lev000_my%02d.nc' %(dataset, my))
     edfile = edfile.where(edfile.Ls >= Lsmin, drop=True).where(edfile.Ls <= Lsmax, drop=True)
     edfile = edfile.where(edfile.level == islev, drop = True)
 
