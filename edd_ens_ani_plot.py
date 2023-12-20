@@ -109,8 +109,12 @@ for my in years:
             ax1.plot([xmin - 10, edfile.Ls[i]], [edfile.values[i]] * 2, color = 'red', alpha = 0.5, linestyle = '--')
 
             fig.tight_layout()
-            plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
-                math.modf(d.time[i].values)[0])*10**4))
+            if scaled == 'yes':
+                plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/scaled_edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
+                    math.modf(d.time[i].values)[0])*10**4))
+            elif scaled == 'no':
+                plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
+                    math.modf(d.time[i].values)[0])*10**4))
     elif type == 'pcolormesh':
         i = 0
         #for i in range(len(d[:,0,0].values)):
