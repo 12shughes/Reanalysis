@@ -16,6 +16,11 @@ for type in ['Control/', 'Analysis/']:
     print('dealing with time')
     times = np.linspace(0,len(initds.time)-1, len(initds.time))
     initds = initds.assign(time=times)
+    print('Extracting necessary part of dataset')
+    if type == 'Control/':
+        initds = initds[['MY', 'Ls', 'time', 't', 'u', 'v', 'ps', 'ak', 'bk', 'lon', 'lat', 'phalf', 'pfull']]
+    elif type == 'Analysis/':
+        initds = initds[['MY', 'Ls', 'time', 'T', 'u', 'v', 'ps', 'ak', 'bk', 'lon', 'lat', 'phalf', 'pfull']]
 
     levels = np.array([200., 225., 250., 275., 300., 310., 320., 330., 340.,
                         350., 360., 370., 380., 390., 400., 450., 500., 550.,
