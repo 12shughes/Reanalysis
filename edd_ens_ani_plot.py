@@ -10,9 +10,25 @@ import math
 from matplotlib import (cm, colors)
 from matplotlib import gridspec
 
-path = '/disco/share/sh1293/OpenMARS_data/'
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+while datachoice not in ['o', 'ec', 'ea']:
+    print('Incorrect input')
+    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
 
-years = [28, 29, 30, 31, 32, 33, 34, 35]
+if datachoice == 'o':
+    dataset = 'OpenMARS_data'
+    set = 'openmars'
+    years = [28, 29, 30, 31, 32, 33, 34, 35]
+elif datachoice == 'ec':
+    dataset = 'EMARS_data/Control'
+    set = 'emars'
+    years = [24, 25, 26]
+elif datachoice == 'ea':
+    dataset = 'EMARS_data/Analysis'
+    set = 'emars'
+    years = [24, 25, 26, 27, 28, 29, 30, 31, 32]
+
+path = '/disco/share/sh1293/%s/' %(dataset)
 
 Lsmin = 200
 Lsmax = 340
@@ -33,7 +49,7 @@ for my in years:
         d = d.set_index(time='Ls')
         d = d.where(d.time >= Lsmin, drop = True).where(d.time <= Lsmax, drop = True)
     print('opening eddy enstrophy')
-    edfile = xr.open_dataarray('/disco/share/sh1293/OpenMARS_data/Eddy_enstrophy/lev000_my%02d.nc' %(my))
+    edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/lev000_my%02d.nc' %(dataset, my))
     edfile = edfile.where(edfile.Ls >= Lsmin, drop=True).where(edfile.Ls <= Lsmax, drop=True)
     edfile = edfile.where(edfile.level == islev, drop = True)
 
