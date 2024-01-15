@@ -21,12 +21,17 @@ elif datachoice == 'ea':
 
 path = '/disco/share/sh1293/%s/Eddy_enstrophy/' %(dataset)
 fcs.eddy_enstrophy_contourf_plot(path, years)
-fcs.eddy_enstrophy_contourf_plot(path, years, scaled=True)
+fcs.eddy_enstrophy_contourf_plot(path, years, scaled='yes')
+fcs.eddy_enstrophy_contourf_plot(path, years, scaled='yes2')
 fcs.eddy_enstrophy_climatology_plot(path, years)
-fcs.eddy_enstrophy_climatology_plot(path, years, scaled=True)
+fcs.eddy_enstrophy_climatology_plot(path, years, scaled='yes')
+fcs.eddy_enstrophy_climatology_plot(path, years, scaled='yes2')
+if datachoice == 'o':
+    fcs.eddy_enstrophy_climatology_plot(path, years, scaled='yes2exc')
 
 islev = int(input('Input chosen isentropic level for time series plot: '))
 fcs.eddy_enstrophy_time_series(path, years, islev)
-fcs.eddy_enstrophy_time_series(path, years, islev, scaled=True)
+fcs.eddy_enstrophy_time_series(path, years, islev, scaled='yes')
+fcs.eddy_enstrophy_time_series(path, years, islev, scaled='yes2')
 
 
