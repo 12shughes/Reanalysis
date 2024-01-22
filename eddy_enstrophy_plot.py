@@ -16,7 +16,7 @@ elif datachoice == 'ec':
     years = [24, 25, 26]
 elif datachoice == 'ea':
     dataset = 'EMARS_data/Analysis'
-    years = [24, 25, 26, 27, 28, 29, 30, 31, 32]
+    years = [24, 25, 26, 28, 29, 30, 31, 32]
 
 
 path = '/disco/share/sh1293/%s/Eddy_enstrophy/' %(dataset)
