@@ -145,7 +145,7 @@ def interpolate_to_isentropic(d, **kwargs):
          = pot_vort.isent_interp(
             thetalevs, d.pfull, d.temp, d.PV,
             d.ucomp, d.vcomp,
-            axis = 1)
+            axis = 1) #, max_iters = 500)
 
         d_isentropic = xr.Dataset({
             "pressure"             : (("time","level","lat","lon"), pres/100),
