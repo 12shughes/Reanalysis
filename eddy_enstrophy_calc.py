@@ -29,7 +29,8 @@ path = '/disco/share/sh1293/%s/Isentropic/' %(dataset)
 for year in years:
     print(year)
     if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/lev%03d_my%02d.nc' %(dataset, islev, year))\
-        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev%03d_my%02d.nc' %(dataset, islev, year)):
+        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev%03d_my%02d.nc' %(dataset, islev, year))\
+        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year)):
         print('Opening dataset')
         ds = xr.open_dataset(path + 'isentropic_%s_my%02d.nc' %(set, year))
         print('Organising data')
@@ -52,5 +53,10 @@ for year in years:
             sc_edd_ens = fcs.scaled_eddy_enstrophy(qs)
             print('Saving')
             sc_edd_ens.to_netcdf('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev%03d_my%02d.nc' %(dataset, islev, year))
+        if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year)):
+            print('Scaled2 eddy enstrophy calculation')
+            sc2_edd_ens = fcs.scaled2_eddy_enstrophy(qs)
+            print('Saving')
+            sc2_edd_ens.to_netcdf('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year))
     else:
         print('Calculations already done')
