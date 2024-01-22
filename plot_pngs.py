@@ -15,10 +15,26 @@ import matplotlib.ticker as ticker
 import math
 from matplotlib import (cm, colors)
 
-path = '/disco/share/sh1293/OpenMARS_data/Isentropic/'
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+while datachoice not in ['o', 'ec', 'ea']:
+    print('Incorrect input')
+    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
 
-years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+if datachoice == 'o':
+    dataset = 'OpenMARS_data'
+    set = 'openmars'
+    years = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+elif datachoice == 'ec':
+    dataset = 'EMARS_data/Control'
+    set = 'emars'
+    years = [24, 25, 26, 27]
+elif datachoice == 'ea':
+    dataset = 'EMARS_data/Analysis'
+    set = 'emars'
+    years = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
 
+
+path = '/disco/share/sh1293/%s/Isentropic/' %(dataset)
 #my = 28
 
 for my in years:
