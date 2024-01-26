@@ -19,14 +19,14 @@ if datachoice == 'o':
     dataset = 'OpenMARS_data'
     set = 'openmars'
     years = [28, 29, 30, 31, 32, 33, 34, 35]
-elif datachoice == 'ec':
+    elif datachoice == 'ec':
     dataset = 'EMARS_data/Control'
     set = 'emars'
     years = [24, 25, 26]
 elif datachoice == 'ea':
     dataset = 'EMARS_data/Analysis'
     set = 'emars'
-    years = [24, 25, 26, 27, 28, 29, 30, 31, 32]
+    years = [24, 25, 26, 28, 29, 30, 31, 32]
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
