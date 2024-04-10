@@ -9,9 +9,31 @@ def lait_scale(q, **kwargs):
     '''
     theta0 = kwargs.pop('theta0', 200)
     kappa = kwargs.pop('kappa', 1/4.)
+    theta = kwargs.pop('theta', False)
 
-    scaled = q * (q.level / theta0)**(-(1+1/kappa))
+    if theta:
+        q['level'] = q['theta']
+
+    scaled = q.PV * (q.level / theta0)**(-(1+1/kappa))
     return scaled
+
+
+def calculate_theta(tmp, plevs, **kwargs):
+    '''
+    Calculates potential temperature theta
+
+    Input
+    -----
+    tmp   : temperature, array-like
+    plevs : pressure levels, array-like
+    p0    : reference pressure, optional. Default: 610. Pa
+    kappa : optional. Default: 0.25
+    '''
+    p0 = kwargs.pop('p0', 610.)
+    kappa = kwargs.pop('kappa', 0.25)
+
+    ret = tmp * (p0/plevs)**kappa
+    return ret
 
 
 def eddy_enstrophy(q, **kwargs):
@@ -80,6 +102,31 @@ def scaled2_eddy_enstrophy(q, **kwargs):
     return Z
 
 
+def scaled3_eddy_enstrophy(q, **kwargs):
+    '''
+    Calculate the eddy enstrophy from dataarray q
+    '''
+    latmin = kwargs.pop('latmin', 60)
+
+    q = q.where(q.lat >= latmin, drop = True)
+    q = q.where(q.lon < 179.5, drop = True)
+    qbar = q.mean(dim = 'lon')
+    qbar = qbar.expand_dims({'lon':q.lon})
+
+    qprime = (q - qbar)
+
+    cos = np.cos(np.deg2rad(q.lat))
+    cos = cos.expand_dims({'lon':q.lon})
+
+    qp = qprime **2 * cos
+
+    qb = q * cos
+
+    Z = (qp.sum(dim = 'lat').sum(dim = 'lon') * cos.sum(dim = 'lat').sum(dim = 'lon'))/((qb.sum(dim = 'lat').sum(dim = 'lon'))**2)
+    
+    return Z
+
+
 def eddy_enstrophy_contourf_plot(path, years, **kwargs):
     scaled = kwargs.pop('scaled', 'no')
     Lsmin = kwargs.pop('Lsmin', 200)
@@ -94,6 +141,10 @@ def eddy_enstrophy_contourf_plot(path, years, **kwargs):
             vmax = 200
         elif scaled == 'yes2':
             da = xr.open_dataarray(path + 'scaled2_lev000_my%02d.nc' %(year))
+            vmin = 0
+            vmax = 12
+        elif scaled == 'yes3':
+            da = xr.open_dataarray(path + 'scaled3_lev000_my%02d.nc' %(year))
             vmin = 0
             vmax = 12
         elif scaled == 'no':
@@ -117,6 +168,9 @@ def eddy_enstrophy_contourf_plot(path, years, **kwargs):
     elif scaled == 'yes2':
         cbar.set_label('Scaled2 eddy enstrophy')
         plt.savefig(path + '/Plots/scaled2_isen_all_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
+    elif scaled == 'yes3':
+        cbar.set_label('Scaled3 eddy enstrophy')
+        plt.savefig(path + '/Plots/scaled3_isen_all_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
     elif scaled == 'no':
         cbar.set_label('Eddy enstrophy')
         plt.savefig(path + '/Plots/isen_all_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
@@ -128,6 +182,8 @@ def eddy_enstrophy_climatology_plot(path, years, **kwargs):
     Lsmax = kwargs.pop('Lsmax', 340)
     if scaled == 'yes2exc':
         years = [29, 30, 31, 32, 33, 35]
+    if scaled == 'yes3exc':
+        years = [29, 30, 31, 32, 33, 35]
     i = 0
     for year in years:
         if scaled == 'yes':
@@ -138,8 +194,16 @@ def eddy_enstrophy_climatology_plot(path, years, **kwargs):
             da = xr.open_dataarray(path + 'scaled2_lev000_my%02d.nc' %(year))
             top = 5
             bottom = -2
+        elif scaled == 'yes3':
+            da = xr.open_dataarray(path + 'scaled3_lev000_my%02d.nc' %(year))
+            top = 5
+            bottom = -2
         elif scaled == 'yes2exc':
             da = xr.open_dataarray(path + 'scaled2_lev000_my%02d.nc' %(year))
+            top = 5
+            bottom = -2
+        elif scaled == 'yes3exc':
+            da = xr.open_dataarray(path + 'scaled3_lev000_my%02d.nc' %(year))
             top = 5
             bottom = -2
         elif scaled == 'no':
@@ -177,8 +241,12 @@ def eddy_enstrophy_climatology_plot(path, years, **kwargs):
             axs[j].set_ylabel('Scaled eddy enstrophy')
         elif scaled == 'yes2':
             axs[j].set_ylabel('Scaled2 eddy enstrophy')
+        elif scaled == 'yes3':
+            axs[j].set_ylabel('Scaled3 eddy enstrophy')
         elif scaled == 'yes2exc':
             axs[j].set_ylabel('Scaled2 eddy enstrophy')
+        elif scaled == 'yes3exc':
+            axs[j].set_ylabel('Scaled3 eddy enstrophy')
         elif scaled == 'no':
             axs[j].set_ylabel('Eddy enstrophy')
         axs[j].set_title('Isentropic level %03dK' %(lev))
@@ -190,8 +258,12 @@ def eddy_enstrophy_climatology_plot(path, years, **kwargs):
         plt.savefig(path + '/Plots/scaled_climatology_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
     elif scaled == 'yes2':
         plt.savefig(path + '/Plots/scaled2_climatology_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
+    elif scaled == 'yes3':
+        plt.savefig(path + '/Plots/scaled3_climatology_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
     elif scaled == 'yes2exc':
         plt.savefig(path + '/Plots/scaled2_climatology_exc28&34_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
+    elif scaled == 'yes3exc':
+        plt.savefig(path + '/Plots/scaled3_climatology_exc28&34_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
     elif scaled == 'no':
         plt.savefig(path + '/Plots/climatology_Ls%03d-%03d.pdf' %(Lsmin, Lsmax))
 
@@ -208,6 +280,8 @@ def eddy_enstrophy_time_series(path, years, islev, **kwargs):
             da = xr.open_dataarray(path + 'scaled_lev000_my%02d.nc' %(year))
         elif scaled == 'yes2':
             da = xr.open_dataarray(path + 'scaled2_lev000_my%02d.nc' %(year))
+        elif scaled == 'yes3':
+            da = xr.open_dataarray(path + 'scaled3_lev000_my%02d.nc' %(year))
         elif scaled == 'no':
             da = xr.open_dataarray(path + 'lev000_my%02d.nc' %(year))
         da = da.assign_coords({'MY':year})
@@ -219,6 +293,8 @@ def eddy_enstrophy_time_series(path, years, islev, **kwargs):
             axs[i].set_ylabel('Scaled eddy enstrophy')
         elif scaled == 'yes2':
             axs[i].set_ylabel('Scaled2 eddy enstrophy')
+        elif scaled == 'yes3':
+            axs[i].set_ylabel('Scaled3 eddy enstrophy')
         elif scaled == 'no':
             axs[i].set_ylabel('Eddy enstrophy')
         axs[i].set_title('My%02d' %(year))
@@ -229,5 +305,7 @@ def eddy_enstrophy_time_series(path, years, islev, **kwargs):
         plt.savefig(path + '/Plots/scaled_lev%03d_scatter_all.pdf' %(islev))
     elif scaled == 'yes2':
         plt.savefig(path + '/Plots/scaled2_lev%03d_scatter_all.pdf' %(islev))
+    elif scaled == 'yes3':
+        plt.savefig(path + '/Plots/scaled3_lev%03d_scatter_all.pdf' %(islev))
     elif scaled == 'no':
         plt.savefig(path + '/Plots/lev%03d_scatter_all.pdf' %(islev))

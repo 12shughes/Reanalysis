@@ -21,15 +21,17 @@ elif datachoice == 'ea':
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
-scaled = input('Run for scaled data, yes2 or no: ')
-while scaled not in ['yes2', 'no']:
+scaled = input('Run for scaled data, yes2 or yes3 or no: ')
+while scaled not in ['yes2', 'yes3', 'no']:
     print('Incorrect input')
-    scaled = input('Run for scaled data, yes2 or no: ')
+    scaled = input('Run for scaled data, yes2 or yes3 or no: ')
 
 if scaled == 'no':
     scal = ''
 elif scaled == 'yes2':
     scal = 'scaled2_'
+elif scaled == 'yes3':
+    scal = 'scaled3_'
 
 for year in years:
     print(year)

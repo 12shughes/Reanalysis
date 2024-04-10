@@ -30,7 +30,8 @@ for year in years:
     print(year)
     if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/lev%03d_my%02d.nc' %(dataset, islev, year))\
         or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled_lev%03d_my%02d.nc' %(dataset, islev, year))\
-        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year)):
+        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year))\
+        or not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev%03d_my%02d.nc' %(dataset, islev, year)):
         print('Opening dataset')
         ds = xr.open_dataset(path + 'isentropic_%s_my%02d.nc' %(set, year))
         print('Organising data')
@@ -39,10 +40,12 @@ for year in years:
             ds['Ls'] = ds.Ls[:,0,0].drop_vars('lon').drop_vars('level')
         elif islev == 000:
             ds['Ls'] = ds.Ls[:,0].drop_vars('lon')
-        da = ds.PV * 10**4
-        da = da.assign_coords({'Ls':ds.Ls})
+        #da = ds.PV * 10**4
+        #da = da.assign_coords({'Ls':ds.Ls})
         print('Lait scaling')
-        qs = fcs.lait_scale(da)
+        qs = fcs.lait_scale(ds)
+        qs = qs * 10**4
+        qs = qs.assign_coords({'Ls':ds.Ls})
         if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/lev%03d_my%02d.nc' %(dataset, islev, year)):
             print('Eddy enstrophy calculation')
             edd_ens = fcs.eddy_enstrophy(qs)
@@ -58,5 +61,10 @@ for year in years:
             sc2_edd_ens = fcs.scaled2_eddy_enstrophy(qs)
             print('Saving')
             sc2_edd_ens.to_netcdf('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev%03d_my%02d.nc' %(dataset, islev, year))
+        if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev%03d_my%02d.nc' %(dataset, islev, year)):
+            print('Scaled3 eddy enstrophy calculation')
+            sc3_edd_ens = fcs.scaled3_eddy_enstrophy(qs)
+            print('Saving')
+            sc3_edd_ens.to_netcdf('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev%03d_my%02d.nc' %(dataset, islev, year))
     else:
         print('Calculations already done')

@@ -19,7 +19,7 @@ if datachoice == 'o':
     dataset = 'OpenMARS_data'
     set = 'openmars'
     years = [28, 29, 30, 31, 32, 33, 34, 35]
-    elif datachoice == 'ec':
+elif datachoice == 'ec':
     dataset = 'EMARS_data/Control'
     set = 'emars'
     years = [24, 25, 26]
@@ -30,10 +30,10 @@ elif datachoice == 'ea':
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
-scaled = input('Run for scaled data, yes2 or no: ')
-while scaled not in ['yes2', 'no']:
+scaled = input('Run for scaled data, yes2 or yes3 or no: ')
+while scaled not in ['yes2', 'yes3', 'no']:
     print('Incorrect input')
-    scaled = input('Run for scaled data, yes2 or no: ')
+    scaled = input('Run for scaled data, yes2 or yes3 or no: ')
 
 Lsmin = 200
 Lsmax = 340
@@ -56,6 +56,8 @@ for my in years:
     print('opening eddy enstrophy')
     if scaled == 'yes2':
         edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev000_my%02d.nc' %(dataset, my))
+    elif scaled == 'yes3':
+        edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev000_my%02d.nc' %(dataset, my))
     elif scaled == 'no':
         edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/lev000_my%02d.nc' %(dataset, my))
     edfile = edfile.where(edfile.Ls >= Lsmin, drop=True).where(edfile.Ls <= Lsmax, drop=True)
@@ -111,6 +113,9 @@ for my in years:
             fig.tight_layout()
             if scaled == 'yes2':
                 plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/scaled2_edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
+                    math.modf(d.time[i].values)[0])*10**4))
+            elif scaled == 'yes3':
+                plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/scaled3_edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
                     math.modf(d.time[i].values)[0])*10**4))
             elif scaled == 'no':
                 plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
