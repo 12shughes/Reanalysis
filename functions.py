@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
+import pdb
 
 
 def lait_scale(q, **kwargs):
@@ -110,6 +111,8 @@ def scaled3_eddy_enstrophy(q, **kwargs):
 
     q = q.where(q.lat >= latmin, drop = True)
     q = q.where(q.lon < 179.5, drop = True)
+    pdb.set_trace()
+
     qbar = q.mean(dim = 'lon')
     qbar = qbar.expand_dims({'lon':q.lon})
 
@@ -117,12 +120,14 @@ def scaled3_eddy_enstrophy(q, **kwargs):
 
     cos = np.cos(np.deg2rad(q.lat))
     cos = cos.expand_dims({'lon':q.lon})
+    pdb.set_trace()
 
     qp = qprime **2 * cos
 
     qb = q * cos
 
     Z = (qp.sum(dim = 'lat').sum(dim = 'lon') * cos.sum(dim = 'lat').sum(dim = 'lon'))/((qb.sum(dim = 'lat').sum(dim = 'lon'))**2)
+    pdb.set_trace()
     
     return Z
 
@@ -309,3 +314,10 @@ def eddy_enstrophy_time_series(path, years, islev, **kwargs):
         plt.savefig(path + '/Plots/scaled3_lev%03d_scatter_all.pdf' %(islev))
     elif scaled == 'no':
         plt.savefig(path + '/Plots/lev%03d_scatter_all.pdf' %(islev))
+
+
+def co2_condensation_temp(ds, **kwargs):
+    T1 = kwargs.pop('T1', 216.58)
+    p1 = kwargs.pop('p1', 518500)
+    
+    

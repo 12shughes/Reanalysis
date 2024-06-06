@@ -141,11 +141,11 @@ def interpolate_to_isentropic(d, **kwargs):
     if kappa == 0.25:
         d = d.transpose('time', 'pfull', 'lat', 'lon')
 
-        pres, PV_i, u_i, v_i, \
+        pres, temp, PV_i, u_i, v_i\
          = pot_vort.isent_interp(
             thetalevs, d.pfull, d.temp, d.PV,
             d.ucomp, d.vcomp,
-            axis = 1) #, max_iters = 500)
+            axis = 1, temperature_out=True) #, max_iters = 500)
 
         d_isentropic = xr.Dataset({
             "pressure"             : (("time","level","lat","lon"), pres/100),
@@ -153,6 +153,7 @@ def interpolate_to_isentropic(d, **kwargs):
             #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
             "ucomp"                : (("time","level","lat","lon"), u_i),
             "vcomp"                : (("time","level","lat","lon"), v_i),
+            "temp"                  : (("time","level","lat","lon"), temp)
             #"Ls"                   : (("time"), d.Ls),
             #"omega"                : (("time","level","lat","lon"), omega_i),
             #"test_tracer"          : (("time","level","lat","lon"), tracer_i),

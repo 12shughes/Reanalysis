@@ -6,6 +6,7 @@ import n_calculate_PV_EMARS as calc
 import glob
 import xarray as xr
 import numpy as np
+import functions as fn
 
 for type in ['Control/', 'Analysis/']:
     print(type)
@@ -55,11 +56,15 @@ for type in ['Control/', 'Analysis/']:
                 splitds = yeards.where((q0<yeards.Ls).compute(), drop=True).where((yeards.Ls<=q1).compute(), drop=True)
             print('prepping ds')
             midds, prs = calc.netcdf_prep(splitds, type)
+            splitds.close()
             print('interpolating to isobaric')
             d_isobaric = calc.isobaric_interp(midds, prs)
+            midds.close()
+            prs.close()
             theta, d_isobaric['PV'] = calc.calculate_PV(d_isobaric)
             print('interpolating to isentropic')
             d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')
+            d_isentropic['PV_lait'] = fn.lait_scale(d_isentropic)
             #try:
             #    d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')
             #except RuntimeError:
@@ -75,10 +80,14 @@ for type in ['Control/', 'Analysis/']:
                     t_theta = xr.concat([t_theta, theta], dim='time').astype('float32')
                     t_d_isobaric = xr.concat([t_d_isobaric, d_isobaric], dim='time').astype('float32')
                     t_d_isentropic = xr.concat([t_d_isentropic, d_isentropic], dim='time').astype('float32')
+            theta.close()
+            d_isobaric.close()
+            d_isentropic.close()
         print('saving isobaric')
         t_d_isobaric.to_netcdf('/disco/share/sh1293/EMARS_data/%sIsobaric/isobaric_emars_my%.0f.nc' %(type, year))
         print('saving isentropic')
         t_d_isentropic.to_netcdf('/disco/share/sh1293/EMARS_data/%sIsentropic/isentropic_emars_my%.0f.nc' %(type, year))
+        yeards.close()
 #        q1 = yeards.Ls[int(len(yeards.Ls)/4)].values
 #        q3 = yeards.Ls[int(3 * len(yeards.Ls)/4)].values
 #        q2 = yeards.Ls[int(2 * len(yeards.Ls)/4)].values

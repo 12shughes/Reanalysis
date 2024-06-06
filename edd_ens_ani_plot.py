@@ -9,6 +9,7 @@ import matplotlib.ticker as ticker
 import math
 from matplotlib import (cm, colors)
 from matplotlib import gridspec
+import pdb
 
 datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
 while datachoice not in ['o', 'ec', 'ea']:
@@ -18,22 +19,25 @@ while datachoice not in ['o', 'ec', 'ea']:
 if datachoice == 'o':
     dataset = 'OpenMARS_data'
     set = 'openmars'
-    years = [28, 29, 30, 31, 32, 33, 34, 35]
+    #years = [28, 29, 30, 31, 32, 33, 34, 35]
+    years = [34]
 elif datachoice == 'ec':
     dataset = 'EMARS_data/Control'
     set = 'emars'
-    years = [24, 25, 26]
+    #years = [24, 25, 26]
+    years = [26]
 elif datachoice == 'ea':
     dataset = 'EMARS_data/Analysis'
     set = 'emars'
-    years = [24, 25, 26, 28, 29, 30, 31, 32]
+    #years = [24, 25, 26, 28, 29, 30, 31, 32]
+    years = [26]
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
-scaled = input('Run for scaled data, yes2 or yes3 or no: ')
-while scaled not in ['yes2', 'yes3', 'no']:
+scaled = input('Run for scaled data, yes2 or yes3 or yes350 or no: ')
+while scaled not in ['yes2', 'yes3', 'yes350', 'no']:
     print('Incorrect input')
-    scaled = input('Run for scaled data, yes2 or yes3 or no: ')
+    scaled = input('Run for scaled data, yes2 or yes3 or yes350 or no: ')
 
 Lsmin = 200
 Lsmax = 340
@@ -48,7 +52,9 @@ for my in years:
     print('opening PV')
     for file in files:
         ds = xr.open_dataset(file)
+        pdb.set_trace()
         ds['PV'] = ds['PV'] * (ds['level'] / 200)**(-(1+1/0.25))
+        pdb.set_trace()
         d = ds.PV[:,4,:9,:]*10**4
         d['Ls'] = ds.Ls[:,0].drop_vars('lon')
         d = d.set_index(time='Ls')
@@ -58,9 +64,13 @@ for my in years:
         edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled2_lev000_my%02d.nc' %(dataset, my))
     elif scaled == 'yes3':
         edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev000_my%02d.nc' %(dataset, my))
+    elif scaled == 'yes350':
+        edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/scaled3_lev000_my%02d_50N.nc' %(dataset, my))
+        pdb.set_trace()
     elif scaled == 'no':
         edfile = xr.open_dataarray('/disco/share/sh1293/%s/Eddy_enstrophy/lev000_my%02d.nc' %(dataset, my))
     edfile = edfile.where(edfile.Ls >= Lsmin, drop=True).where(edfile.Ls <= Lsmax, drop=True)
+    pdb.set_trace()
     edfile = edfile.where(edfile.level == islev, drop = True)
 
     fig, ax = plt.subplots(figsize = (10,10), subplot_kw={'projection':ccrs.NorthPolarStereo()})
@@ -98,17 +108,25 @@ for my in years:
             ax.set_extent([-180,180,50,90], crs=ccrs.PlateCarree())
             contourplot = ax.contourf(d[i,:,:].lon, d[i,:,:].lat, d[i,:,:].values, vmin = 0, vmax = 8,
                                         transform = ccrs.PlateCarree(), cmap='viridis', levels=np.linspace(0, 8, 21), extend = 'both')
-            cbar = plt.colorbar(contourplot, ticks = np.linspace(0,8,11), shrink = 0.5, fraction = 0.075)
+            pdb.set_trace()
+            cbar = plt.colorbar(contourplot, ticks = np.linspace(0,8,11), shrink = 0.5, fraction = 0.075, label = 'PV (MPVU)')
             
 
             ax1 = fig.add_subplot(spec[1])
             ax1.plot(edfile.Ls[:i+1], edfile.values[:i+1])
             ax1.set_xlim(left = xmin, right = xmax)
-            ax1.set_ylim(bottom = -3, top = ymax)
+            if scaled == 'yes3':
+                ax1.set_ylim(bottom = -0.2, top = 1)
+            elif scaled == 'yes350':
+                ax1.set_ylim(bottom = -0.2, top = 1)
+            else:
+                ax1.set_ylim(bottom = -3, top = ymax)
             ax1.set_ylabel('Eddy enstrophy')
             ax1.set_xlabel('Ls')
             ax1.plot(edfile.Ls[i], edfile.values[i], marker = '.', color = 'red', ms = 10)
+            pdb.set_trace()
             ax1.plot([xmin - 10, edfile.Ls[i]], [edfile.values[i]] * 2, color = 'red', alpha = 0.5, linestyle = '--')
+            pdb.set_trace()
 
             fig.tight_layout()
             if scaled == 'yes2':
@@ -117,6 +135,10 @@ for my in years:
             elif scaled == 'yes3':
                 plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/scaled3_edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
                     math.modf(d.time[i].values)[0])*10**4))
+            elif scaled == 'yes350':
+                plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/scaled3_edd_ens_my%02dLs%03d_%04d_50N.png' %(my, my, math.modf(d.time[i].values)[1], (
+                    math.modf(d.time[i].values)[0])*10**4))
+                pdb.set_trace()
             elif scaled == 'no':
                 plt.savefig(path + '/Eddy_enstrophy/Ani_plots/MY%02d/edd_ens_my%02dLs%03d_%04d.png' %(my, my, math.modf(d.time[i].values)[1], (
                     math.modf(d.time[i].values)[0])*10**4))

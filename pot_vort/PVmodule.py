@@ -516,7 +516,7 @@ def isent_interp(isentlevs, pres, tmp, *args, **kwargs):
         Controls whether to search for theta levels bottom-up, or top-down. Defaults to
         True, which is bottom-up search.
     temperature_out : bool, optional
-        If true, calculates temperature and output as last item in output list. Defaults
+        If true, calculates temperature and output as last item in output list (but before any additional arguments). Defaults
         to False.
     
     '''
