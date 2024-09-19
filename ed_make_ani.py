@@ -1,10 +1,10 @@
 import os
 import ffmpeg
 
-datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
-while datachoice not in ['o', 'ec', 'ea']:
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, m2 - MACDA2): ')
+while datachoice not in ['o', 'ec', 'ea', 'm2']:
     print('Incorrect input')
-    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis): ')
+    datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, m2 - MACDA2): ')
 
 if datachoice == 'o':
     dataset = 'OpenMARS_data'
@@ -17,13 +17,18 @@ elif datachoice == 'ec':
     set = 'emars'
     delay = 1.5
     #years = [24, 25, 26]
-    years = [26]
+    years = [24]
 elif datachoice == 'ea':
     dataset = 'EMARS_data/Analysis'
     set = 'emars'
     delay = 1.5
     #years = [24, 25, 26, 28, 29, 30, 31, 32]
-    years = [29]#, 29]
+    years = [24]#, 29]
+elif datachoice == 'm2':
+    dataset = 'MACDA2_data'
+    set = 'macda2'
+    delay = 3
+    years = [28, 29]
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
@@ -42,12 +47,12 @@ elif scaled == 'yes3':
 for year in years:
     print(year)
     print('making gif')
-    os.system('convert -delay %s %s/Eddy_enstrophy/Ani_plots/MY%02d/%sedd_ens_my%02d*50N.png \
-                    %s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_50N.gif' %(delay, path, year, scal, year, path, scal, year))
+    os.system('convert -delay %s %s/Eddy_enstrophy/Ani_plots/MY%02d/%sedd_ens_my%02d*.png \
+                    %s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_new.gif' %(delay, path, year, scal, year, path, scal, year))
     #os.system('ffmpeg -f gif -i /disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.gif \
                     #/disco/share/sh1293/OpenMARS_data/Isentropic/Animations/ctf_MY28.mp4')
 
     print('making mp4')
-    (ffmpeg.input('%s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_50N.gif' %(path, scal, year))
-        .output('%s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_50N.mp4' %(path, scal, year))
+    (ffmpeg.input('%s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_new.gif' %(path, scal, year))
+        .output('%s/Eddy_enstrophy/Animations/%sedd_ens_MY%02d_new.mp4' %(path, scal, year))
         .run(overwrite_output=True))

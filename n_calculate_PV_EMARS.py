@@ -49,6 +49,10 @@ def netcdf_prep(ds, type):
         d = d.rename_vars({'t':'temp'})
     elif type == 'Analysis/':
         d = d.rename_vars({'T':'temp','U':'u','V':'v'})
+    elif type == 'Background/':
+        d = d.rename_vars({'t':'temp'})
+    elif type == 'Analysis_diff_grid/':
+        d = d.rename_vars({'T':'temp','U':'u','V':'v'})
 
 
     prs = calculate_pfull(d.ps, d.ak, d.bk).dropna('phalf')
@@ -60,15 +64,16 @@ def netcdf_prep(ds, type):
     prs = prs.transpose('time','pfull','lat','lon')
 
 
-    d = d[['Ls','MY','ps','temp','u','v']]
+    d = d[['Ls','MY','ps','temp','u','v','lheat','snow']]
 
     return d, prs
 
 
-def isobaric_interp(ds, prs):
+def isobaric_interp(ds, prs, **kwargs):
     '''
     Takes the prepped netCDF4 and interps it to isobaric levels
     '''
+    extras = kwargs.pop('extras', '')
     plev1 = [float(i/10) for i in range(1,100,5)]
     plev2 = [float(i) for i in range(10,100,10)]
     plev3 = [float(i) for i in range(100,650,50)]
@@ -77,9 +82,21 @@ def isobaric_interp(ds, prs):
     tmp, uwnd, vwnd = pot_vort.log_interpolate_1d(plevs, prs.compute(),
                                                     ds.temp, ds.u, ds.v,
                                                     axis = 1)
-    d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
+    if extras == 'background':
+        d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
                         "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
-                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),},
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),
+                        "lheat" : (("time", "pfull", "lat", "lon"), lheat),
+                        "snow" : (("time", "lat", "lon"), snow)},
+                        coords = {"time": ds.time,
+                                "pfull": plevs,
+                                "lat" : ds.lat,
+                                "lon" : ds.lon})
+    elif extras == '':
+        d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
+                        "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),
+                        },
                         coords = {"time": ds.time,
                                 "pfull": plevs,
                                 "lat" : ds.lat,
@@ -125,6 +142,7 @@ def interpolate_to_isentropic(d, **kwargs):
     g       = kwargs.pop(      'g', 3.72076)     # gravitational acceleration
     rsphere = kwargs.pop('rsphere', 3.3962e6)    # mean planetary radius
     dim     = kwargs.pop(    'dim', 'pfull')
+    extras = kwargs.pop('extras', '')
 
     if d.pfull.max().values < 10:
         raise ValueError('Just double check your pressure is in Pascals here!')
@@ -141,33 +159,64 @@ def interpolate_to_isentropic(d, **kwargs):
     if kappa == 0.25:
         d = d.transpose('time', 'pfull', 'lat', 'lon')
 
-        pres, temp, PV_i, u_i, v_i\
-         = pot_vort.isent_interp(
-            thetalevs, d.pfull, d.temp, d.PV,
-            d.ucomp, d.vcomp,
-            axis = 1, temperature_out=True) #, max_iters = 500)
+        if extras == '':
+            pres, temp, PV_i, u_i, v_i\
+            = pot_vort.isent_interp(
+                thetalevs, d.pfull, d.temp, d.PV,
+                d.ucomp, d.vcomp,
+                axis = 1, temperature_out=True) #, max_iters = 500)
 
-        d_isentropic = xr.Dataset({
-            "pressure"             : (("time","level","lat","lon"), pres/100),
-            "PV"                   : (("time","level","lat","lon"), PV_i),
-            #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
-            "ucomp"                : (("time","level","lat","lon"), u_i),
-            "vcomp"                : (("time","level","lat","lon"), v_i),
-            "temp"                  : (("time","level","lat","lon"), temp)
-            #"Ls"                   : (("time"), d.Ls),
-            #"omega"                : (("time","level","lat","lon"), omega_i),
-            #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
-            #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
-            #"lh_rel"               : (("time","level","lat","lon"), lh_rel_i),
-            #"dt_tg_lh_condensation": (("time","level","lat","lon"), dt_tg_lh_condensation_i),
-            },
-            coords = {
-                "level": thetalevs,
-                "time" : d.time,
-                "lat"  : d.lat,
-                "lon"  : d.lon
-                })
-        d_isentropic['Ls'] = d.Ls
+            d_isentropic = xr.Dataset({
+                "pressure"             : (("time","level","lat","lon"), pres/100),
+                "PV"                   : (("time","level","lat","lon"), PV_i),
+                #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
+                "ucomp"                : (("time","level","lat","lon"), u_i),
+                "vcomp"                : (("time","level","lat","lon"), v_i),
+                "temp"                  : (("time","level","lat","lon"), temp)
+                #"Ls"                   : (("time"), d.Ls),
+                #"omega"                : (("time","level","lat","lon"), omega_i),
+                #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
+                #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
+                #"lh_rel"               : (("time","level","lat","lon"), lh_rel_i),
+                #"dt_tg_lh_condensation": (("time","level","lat","lon"), dt_tg_lh_condensation_i),
+                },
+                coords = {
+                    "level": thetalevs,
+                    "time" : d.time,
+                    "lat"  : d.lat,
+                    "lon"  : d.lon
+                    })
+            d_isentropic['Ls'] = d.Ls
+        elif extras == 'background':
+            pres, temp, PV_i, u_i, v_i, lh_i, s_i\
+            = pot_vort.isent_interp(
+                thetalevs, d.pfull, d.temp, d.PV,
+                d.ucomp, d.vcomp, d.lheat, d.snow,
+                axis = 1, temperature_out=True) #, max_iters = 500)
+
+            d_isentropic = xr.Dataset({
+                "pressure"             : (("time","level","lat","lon"), pres/100),
+                "PV"                   : (("time","level","lat","lon"), PV_i),
+                #"grdSpv"               : (("time","level","lat","lon"), grdSpv_i),
+                "ucomp"                : (("time","level","lat","lon"), u_i),
+                "vcomp"                : (("time","level","lat","lon"), v_i),
+                "temp"                  : (("time","level","lat","lon"), temp),
+                #"Ls"                   : (("time"), d.Ls),
+                #"omega"                : (("time","level","lat","lon"), omega_i),
+                #"test_tracer"          : (("time","level","lat","lon"), tracer_i),
+                #"grdStr"               : (("time","level","lat","lon"), grd_tr_i),
+                #"lh_rel"               : (("time","level","lat","lon"), lh_rel_i),
+                #"dt_tg_lh_condensation": (("time","level","lat","lon"), dt_tg_lh_condensation_i),
+                "lheat"                 : (("time","level","lat","lon"), lh_i),
+                "snow"                  : (("time","lat","lon"), s_i)
+                },
+                coords = {
+                    "level": thetalevs,
+                    "time" : d.time,
+                    "lat"  : d.lat,
+                    "lon"  : d.lon
+                    })
+            d_isentropic['Ls'] = d.Ls
     else: ## just simple way to choose between earth and mars for now
         d = d.transpose('pfull', 'latitude', 'longitude')
 

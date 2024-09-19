@@ -111,7 +111,7 @@ def scaled3_eddy_enstrophy(q, **kwargs):
 
     q = q.where(q.lat >= latmin, drop = True)
     q = q.where(q.lon < 179.5, drop = True)
-    pdb.set_trace()
+    # pdb.set_trace()
 
     qbar = q.mean(dim = 'lon')
     qbar = qbar.expand_dims({'lon':q.lon})
@@ -120,14 +120,14 @@ def scaled3_eddy_enstrophy(q, **kwargs):
 
     cos = np.cos(np.deg2rad(q.lat))
     cos = cos.expand_dims({'lon':q.lon})
-    pdb.set_trace()
+    # pdb.set_trace()
 
     qp = qprime **2 * cos
 
     qb = q * cos
 
     Z = (qp.sum(dim = 'lat').sum(dim = 'lon') * cos.sum(dim = 'lat').sum(dim = 'lon'))/((qb.sum(dim = 'lat').sum(dim = 'lon'))**2)
-    pdb.set_trace()
+    # pdb.set_trace()
     
     return Z
 
@@ -316,8 +316,31 @@ def eddy_enstrophy_time_series(path, years, islev, **kwargs):
         plt.savefig(path + '/Plots/lev%03d_scatter_all.pdf' %(islev))
 
 
-def co2_condensation_temp(ds, **kwargs):
-    T1 = kwargs.pop('T1', 216.58)
-    p1 = kwargs.pop('p1', 518500)
+def co2_condensation_temp_ball(ds, **kwargs):
+    pres = kwargs.pop('pressure', np.nan)
+    # if it's isobaric, the pressure variable is called pfull, and is in Pa. If it's isentropic, the pressure variable is called pressure and is in hPa.
+    if 'pressure' in list(ds.keys()): # this means it is isentropic
+        ds['T_c_ball'] = (149.2+6.49*np.log(0.00135*ds.pressure*100)).astype('float32')
+    elif 'pfull' in list(ds.coords):
+        ds['T_c_ball'] = (149.2+6.49*np.log(0.00135*ds.pfull)).astype('float32')
+    else:
+        if pres == np.nan:
+            print(f'Pressure level needs to be specified')
+        ds['T_c_ball'] = (149.2+6.49*np.log(0.00135*pres)).astype('float32')
     
+    return ds
+
+
+def co2_condensation_temp_noguchi(ds, **kwargs):
+    pres = kwargs.pop('pressure', np.nan)
+    # if it's isobaric, the pressure variable is called pfull, and is in Pa. If it's isentropic, the pressure variable is called pressure and is in hPa.
+    if 'pressure' in list(ds.keys()): # this means it is isentropic
+        ds['T_c_noguchi'] = (4.718+1284.07/(11.76667-np.log(ds.pressure*100)/np.log(10))).astype('float32')
+    elif 'pfull' in list(ds.coords):
+        ds['T_c_noguchi'] = (4.718+1284.07/(11.76667-np.log(ds.pfull)/np.log(10))).astype('float32')
+    else:
+        if pres == np.nan:
+            print(f'Pressure level needs to be specified')
+        ds['T_c_noguchi'] = (4.718+1284.07/(11.76667-np.log(pres)/np.log(10))).astype('float32')
     
+    return ds

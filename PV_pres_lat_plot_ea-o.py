@@ -8,7 +8,7 @@ Lsmin = 270
 Lsmax = 300
 
 i = 0
-fig, axs = plt.subplots(2, 5, sharex=True, sharey=True, figsize = (35,10))
+fig, axs = plt.subplots(2, 5, sharex=True, sharey=True, figsize = (22,9))
 while i<=9:
     c = int(i/2)
     r = np.remainder(i, 2)
@@ -79,15 +79,19 @@ while i<=9:
     im = data_ave.PV.plot.contourf(x='lat', y='pfull', ax=axs[r, c], cmap='OrRd', levels=[-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7],
                                     extend = 'max', vmin = -0.5, vmax = 7., add_colorbar=False)
     im1 = data_ave.theta.plot.contour(x='lat', y='pfull', ax=axs[r,c], levels=[200,300,400,500,600,700,800,900,1000,1100], linestyles='--', colors='black', linewidths=1)
-    axs[r,c].set_title('%s MY%d' %(title, my))
-    axs[r,c].set_xlabel('Latitude')
-    axs[r,c].set_ylabel('Pressure (Pa)')
+    axs[r,c].set_title('%s MY%d' %(title, my), fontsize=16)
+    axs[r,c].set_xlabel('Latitude', fontsize=14)
+    axs[r,c].set_ylabel('Pressure (Pa)', fontsize=14)
     axs[r,c].set_xlim([0,90])
     axs[r,c].set_ylim([610, 0.5])
     axs[r,c].set_yscale('log')
     axs[r,c].plot(max_lats, data_ave.pfull.values, color = 'blue')
+    axs[r,c].xaxis.set_tick_params(labelsize=12)
+    axs[r,c].yaxis.set_tick_params(labelsize=12)
     
 
-fig.colorbar(im, ax=axs.ravel().tolist(), ticks=[0,1,2,3,4,5,6,7], label='PV (MPVU)')
+cbar = fig.colorbar(im, ax=axs.ravel().tolist(), ticks=[0,1,2,3,4,5,6,7])
+cbar.ax.tick_params(labelsize=14)
+cbar.set_label('PV (MPVU)', size=16)
 #fig.suptitle('Ls%d-%d' %(Lsmin, Lsmax))
-plt.savefig('/disco/share/sh1293/OpenMARS_data/pres_all_data_grid_PV_Ls%d-%d.pdf' %(Lsmin, Lsmax))
+plt.savefig('/disco/share/sh1293/OpenMARS_data/pres_all_data_grid_PV_Ls%d-%d_remade.pdf' %(Lsmin, Lsmax))

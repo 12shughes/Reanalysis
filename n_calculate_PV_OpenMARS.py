@@ -49,6 +49,21 @@ def netcdf_prep(ds):
     return d, prs
 
 
+def onevar_prep(ds, var):
+    '''
+    Appends longitude 360 to file and reduces file to only variable chosen.
+    '''
+    ens_list = []
+    tmp1 = ds.sel(lon=-180.)
+    tmp1 = tmp1.assign_coords({'lon':179.9999})
+    ens_list.append(ds)
+    ens_list.append(tmp1)
+
+    d = xr.concat(ens_list, dim='lon')
+    d = d.astype('float32')
+    d = d[var]
+    return d
+
 def isobaric_interp(ds, prs):
     '''
     Takes the prepped netCDF4 and interps it to isobaric levels
