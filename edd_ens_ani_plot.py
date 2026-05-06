@@ -16,6 +16,8 @@ while datachoice not in ['o', 'ec', 'ea', 'm2']:
     print('Incorrect input')
     datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, m2 - MACDA2): ')
 
+max = 8
+
 if datachoice == 'o':
     dataset = 'OpenMARS_data'
     set = 'openmars'
@@ -34,7 +36,8 @@ elif datachoice == 'ea':
 elif datachoice == 'm2':
     dataset = 'MACDA2_data'
     set = 'macda2'
-    years = [28, 29]
+    years = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+    max = 16
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 
@@ -111,10 +114,10 @@ for my in years:
             gl = ax.gridlines(crs = ccrs.PlateCarree(), linewidth = 1, linestyle = '-', color = 'black', alpha = 1, draw_labels=True)
             ax.set_boundary(circle, transform=ax.transAxes)
             ax.set_extent([-180,180,50,90], crs=ccrs.PlateCarree())
-            contourplot = ax.contourf(d[i,:,:].lon, d[i,:,:].lat, d[i,:,:].values, vmin = 0, vmax = 8,
-                                        transform = ccrs.PlateCarree(), cmap='viridis', levels=np.linspace(0, 8, 21), extend = 'both')
+            contourplot = ax.contourf(d[i,:,:].lon, d[i,:,:].lat, d[i,:,:].values, vmin = 0, vmax = max,
+                                        transform = ccrs.PlateCarree(), cmap='viridis', levels=np.linspace(0, max, 21), extend = 'both')
             # pdb.set_trace()
-            cbar = plt.colorbar(contourplot, ticks = np.linspace(0,8,11), shrink = 0.5, fraction = 0.075, label = 'PV (MPVU)')
+            cbar = plt.colorbar(contourplot, ticks = np.linspace(0,max,11), shrink = 0.5, fraction = 0.075, label = 'PV (MPVU)')
             
 
             ax1 = fig.add_subplot(spec[1])

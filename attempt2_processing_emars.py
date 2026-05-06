@@ -10,10 +10,10 @@ import functions as fn
 import pdb
 import os
 
-datachoice = input('Enter directory code (a - analysis, b - background, c - control): ')
-while datachoice not in ['a', 'b', 'c', 'ad']:
+datachoice = input('Enter directory code (a - analysis, b - background, c - control, a2 - analysis2): ')
+while datachoice not in ['a', 'b', 'c', 'a2']:
     print('Incorrect input')
-    datachoice = input('Enter directory code (a - analysis, b - background, c - control): ')
+    datachoice = input('Enter directory code (a - analysis, b - background, c - control, a2 - analysis2): ')
 
 if datachoice == 'a':
     type = 'Analysis/'
@@ -21,8 +21,12 @@ elif datachoice == 'b':
     type = 'Background/'
 elif datachoice == 'c':
     type = 'Control/'
+elif datachoice == 'a2':
+    type = 'Analysis2/'
 
 epath = f'/disco/share/sh1293/EMARS_data/{type}Raw/'
+if datachoice == 'a2':
+    epath = f'/disco/share/sh1293/EMARS_data/{type}Regrid/'
 
 # levels = np.array([200., 250., 275., 300., 310., 320., 330., 340.,
 #                     350., 360., 370., 380., 390., 400., 450., 500., 550.,
@@ -56,9 +60,10 @@ for year in years:
 
     # pdb.set_trace()
     yeards = initds.where((initds['MY'] == year).compute(), drop = True)
-    nlat = yeards.sizes['lat']
-    lats_fixed = np.linspace(87.5, -87.5, nlat)
-    yeards = yeards.interp(lat=lats_fixed)
+    if datachoice != 'a2':
+        nlat = yeards.sizes['lat']
+        lats_fixed = np.linspace(87.5, -87.5, nlat)
+        yeards = yeards.interp(lat=lats_fixed)
     max = 4
     print('splitting year into %d' %(max))
     for i in np.linspace(1, max, max):
@@ -107,11 +112,11 @@ for year in years:
         d_isobaric.close()
         d_isentropic.close()
     print('saving isobaric')
-    if not os.path.exists(f'/disco/share/sh1293/EMARS_data/{type}Isobaric-v2/'):
-        os.makedirs(f'/disco/share/sh1293/EMARS_data/{type}Isobaric-v2/')
-    t_d_isobaric.to_netcdf(f'/disco/share/sh1293/EMARS_data/{type}Isobaric-v2/isobaric-v2_emars_my{year}.nc')
+    if not os.path.exists(f'/disco/share/sh1293/EMARS_data/{type}Isobaric/'):
+        os.makedirs(f'/disco/share/sh1293/EMARS_data/{type}Isobaric/')
+    t_d_isobaric.to_netcdf(f'/disco/share/sh1293/EMARS_data/{type}Isobaric/isobaric_emars_my{year}.nc')
     print('saving isentropic')
-    if not os.path.exists(f'/disco/share/sh1293/EMARS_data/{type}Isentropic-v2/'):
-        os.makedirs(f'/disco/share/sh1293/EMARS_data/{type}Isentropic-v2/')
-    t_d_isentropic.to_netcdf(f'/disco/share/sh1293/EMARS_data/{type}Isentropic-v2/isentropic-v2_emars_my{year}.nc')
+    if not os.path.exists(f'/disco/share/sh1293/EMARS_data/{type}Isentropic/'):
+        os.makedirs(f'/disco/share/sh1293/EMARS_data/{type}Isentropic/')
+    t_d_isentropic.to_netcdf(f'/disco/share/sh1293/EMARS_data/{type}Isentropic/isentropic_emars_my{year}.nc')
     yeards.close()

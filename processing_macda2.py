@@ -10,28 +10,31 @@ import os
 import functions as fn
 import pdb
 
-opath = '/disco/share/sh1293/MACDA2_data/Raw/'
-# print('opening data')
-# initds = xr.open_mfdataset(opath + 'openmars*.nc').astype('float32')
+opath = '/disco/share/sh1293/MACDA2_data/Raw_time/'
+print('opening data')
+initds = xr.open_mfdataset(f'{opath}/sol*.nc').astype('float32')
 # pdb.set_trace()
 
 levels = np.array([200., 225., 250., 275., 300., 310., 320., 330., 340.,
                     350., 360., 370., 380., 390., 400., 450., 500., 550.,
                     600., 650., 700., 750., 800., 850., 900., 950.])
 
-print('splitting by year')
-# years = np.sort(np.unique(initds.MY))
-years = [28, 29]
+# print('splitting by year')
+years = np.sort(np.unique(initds.MY))
+# years = [28, 29]
 
 for year in years:
     print('opening data')
-    initds = xr.open_mfdataset(f'{opath}3obs*MY{year}*.nc', combine='nested', concat_dim='time', decode_times=False).astype('float32')
-    passcond = False
+    # initds = xr.open_mfdataset(f'{opath}3obs*MY{year}*.nc', combine='nested', concat_dim='time', decode_times=False).astype('float32')
+    passcond = True
     print(year)
-    # yeards = initds.where((initds['MY'] == year).compute(), drop = True)
-    yeards = initds
-    yeards['MY'] = year
-    initds.close()
+    if year < 30:
+        print('skip year')
+        continue
+    yeards = initds.where((initds.MY == year), drop = True)
+    # yeards = initds
+    # yeards['MY'] = year
+    # initds.close()
     # pdb.set_trace()
     max = 8
     print('splitting year into %d' %(max))
@@ -50,6 +53,7 @@ for year in years:
             splitds = splitds1.where((splitds1.Ls<=q1).compute(), drop=True)
         # pdb.set_trace()
         yeards.close()
+        co2ice = splitds.co2ice
         print('prepping ds')
         midds, prs = calc.netcdf_prep(splitds)
         splitds.close()
@@ -60,9 +64,13 @@ for year in years:
         prs.close()
         # pdb.set_trace()
         theta, d_isobaric['PV'] = calc.calculate_PV(d_isobaric)
+        d_isobaric['co2ice'] = co2ice
+        d_isobaric['MY'] = year
         print('interpolating to isentropic')
         d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')
         d_isentropic['PV_lait'] = fn.lait_scale(d_isentropic)
+        d_isentropic['co2ice'] = co2ice
+        d_isentropic['MY'] = year
         # pdb.set_trace()
         #try:
         #    d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')

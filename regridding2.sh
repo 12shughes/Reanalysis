@@ -1,20 +1,41 @@
 #!/bin/bash
+set -e  # Stop script on first error
 
-echo "Analysis"
+# Remember where we started
+CURR_DIR=$(pwd)
 
-# Change to the parent directory
-cd "/disco/share/sh1293/EMARS_data/Analysis/Raw" || exit
+trap 'cd "$CURR_DIR"' EXIT
 
-files=$(find -name "*.nc")
+echo "Starting Analysis"
 
-cd "/disco/share/sh1293/EMARS_data/Analysis/" || exit
+# Define base paths
+BASE_DIR="/disco/share/sh1293/EMARS_data/Analysis"
+RAW_DIR="$BASE_DIR/Raw"
+REGRID_DIR="$BASE_DIR/Regrid2"
+GRID_FILE="/disco/share/sh1293/OpenMARS_data/gridfile2.txt"
 
-for file in $files; do
-    echo "$file"
-    if [ -e "Regrid2/$file" ]; then
-        echo "Already regridded"
+# Make sure output folder exists
+mkdir -p "$REGRID_DIR"
+
+# Loop over all .nc files in Raw directory
+cd "$RAW_DIR" || exit 1
+find . -type f -name "*.nc" | while read -r file; do
+    echo "Processing: $file"
+
+    # Strip leading './' if present
+    clean_file="${file#./}"
+    output_file="$REGRID_DIR/$clean_file"
+
+    # Ensure any subdirectories in Regrid2 exist
+    mkdir -p "$(dirname "$output_file")"
+
+    if [ -e "$output_file" ]; then
+        echo "Already regridded → $output_file"
     else
-        echo "Regridding"
-        cdo remapcon,/disco/share/sh1293/OpenMARS_data/gridfile2.txt Raw/$file Regrid2/$file
+        echo "Regridding → $output_file"
+        cdo remapcon,"$GRID_FILE" "$RAW_DIR/$clean_file" "$output_file"
     fi
 done
+
+# Return to original directory
+cd "$CURR_DIR" || exit

@@ -11,8 +11,8 @@ import functions as fn
 import pdb
 
 opath = '/disco/share/sh1293/OpenMARS_data/Raw/'
-# print('opening data')
-# initds = xr.open_mfdataset(opath + 'openmars*.nc').astype('float32')
+print('opening data')
+initds = xr.open_mfdataset(opath + 'openmars*.nc').astype('float32')
 # pdb.set_trace()
 
 levels = np.array([200., 225., 250., 275., 300., 310., 320., 330., 340.,
@@ -20,13 +20,15 @@ levels = np.array([200., 225., 250., 275., 300., 310., 320., 330., 340.,
                     600., 650., 700., 750., 800., 850., 900., 950.])
 
 print('splitting by year')
-# years = np.sort(np.unique(initds.MY))
-years = [32]
+years = np.sort(np.unique(initds.MY))
+initds.close()
+# years = [32]
 
 for year in years:
+    year = int(year)
     print('opening data')
     initds = xr.open_mfdataset(f'{opath}openmars*my{year}*.nc').astype('float32')
-    passcond = False
+    passcond = True
     print(year)
     yeards = initds.where((initds['MY'] == year).compute(), drop = True)
     initds.close()

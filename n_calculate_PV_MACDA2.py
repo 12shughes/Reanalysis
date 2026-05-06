@@ -38,7 +38,7 @@ def netcdf_prep(ds):
     d = xr.concat(ens_list, dim='lon')
     d = d.astype('float32')
     # d = d[["ucomp", "vcomp", "temp", "mars_solar_long"]]
-    d = d[['Ls','ps','temp','u','v']]
+    # d = d[['Ls','ps','temp','u','v']]
 
     prs = calculate_pfull(d.ps, d.sigma)
     prs = prs.transpose('time','sigma','lat','lon')
@@ -78,7 +78,7 @@ def isobaric_interp(ds, prs):
                                                     axis = 1)
     d_iso = xr.Dataset({"temp"  : (("time", "pfull", "lat", "lon"), tmp), 
                         "ucomp" : (("time", "pfull", "lat", "lon"), uwnd),
-                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd),},
+                        "vcomp" : (("time", "pfull", "lat", "lon"), vwnd)},
                         coords = {"time": ds.time,
                                 "pfull": plevs,
                                 "lat" : ds.lat,

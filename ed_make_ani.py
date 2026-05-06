@@ -28,7 +28,8 @@ elif datachoice == 'm2':
     dataset = 'MACDA2_data'
     set = 'macda2'
     delay = 3
-    years = [28, 29]
+    years = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+    # years = [25, 26, 27, 28, 29]
 
 path = '/disco/share/sh1293/%s/' %(dataset)
 

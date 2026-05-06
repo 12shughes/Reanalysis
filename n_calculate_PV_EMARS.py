@@ -63,8 +63,11 @@ def netcdf_prep(ds, type):
     prs = prsset.prs
     prs = prs.transpose('time','pfull','lat','lon')
 
-
-    d = d[['Ls','MY','ps','temp','u','v','lheat','snow']]
+    if type != 'Background/':
+        d = d[['Ls','MY','ps','temp','u','v']]#,'lheat','snow']]
+    elif type == 'Background/':
+        d = d[['Ls','MY','ps','temp','u','v']]#,'lheat','snow']]
+    
 
     return d, prs
 
@@ -243,4 +246,44 @@ def interpolate_to_isentropic(d, **kwargs):
     
     return d_isentropic
 
-# %%
+def netcdf_prep_emars(ds, type):
+    '''
+    Appends longitude 360 to file and reduces file to only variables necessary
+    for PV calculation. Also converts pressure to Pa.
+    '''
+    # ens_list = []
+    # tmp1 = ds.sel(lon=-180.)
+    # tmp1 = tmp1.assign_coords({'lon':179.9999})
+    # ens_list.append(ds)
+    # ens_list.append(tmp1)
+
+    # d = xr.concat(ens_list, dim='lon')
+    d = ds.astype('float32')
+    
+    # pressure is in hPa, must be in Pa for calculations - need to do this for EMARS as pressure (pfull) is in mb
+    d["pfull"] = d.pfull*100
+
+    if type == 'Control/':
+        d = d.rename_vars({'t':'temp'})
+    elif type == 'Analysis/':
+        d = d.rename_vars({'T':'temp','U':'u','V':'v'})
+    elif type == 'Background/':
+        d = d.rename_vars({'t':'temp'})
+    elif type == 'Analysis_diff_grid/':
+        d = d.rename_vars({'T':'temp','U':'u','V':'v'})
+    elif type == 'Analysis2/':
+        d = d.rename_vars({'T':'temp','U':'u','V':'v'})
+
+
+    prs = calculate_pfull(d.ps, d.ak, d.bk).dropna('phalf')
+    prsset = prs.to_dataset(name = 'prs')
+    prsset = prsset.assign_coords({'pfull':d.pfull})
+    prsset['prs'] = prsset['prs'].swap_dims({'phalf':'pfull'})
+    prsset = prsset.drop_dims('phalf')
+    prs = prsset.prs
+    prs = prs.transpose('time','pfull','lat','lon')
+
+
+    d = d[['Ls','MY','ps','temp','u','v']]#,'lheat','snow']]
+
+    return d, prs

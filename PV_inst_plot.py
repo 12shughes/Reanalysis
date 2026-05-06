@@ -12,15 +12,13 @@ import pdb
 import matplotlib.ticker as mticker
 
 year = 29
-# horizontal or vertical
-orientation = 'horizontal'
 
 Ls_early = 270
 Ls_late = 300
 
 level = 300
 
-datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, eb - EMARS background, ead - EMARS analysis different grid m2 - MACDA2, m2o - MACDA2_old): ')
+datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, eb - EMARS background, ead - EMARS analysis different grid, m2 - MACDA2, m2o - MACDA2_old): ')
 while datachoice not in ['o', 'ec', 'ea', 'eb', 'ead', 'm2', 'm2o']:
     print('Incorrect input')
     datachoice = input('Enter directory code (o - OpenMARS, ec - EMARS control, ea - EMARS analysis, eb - EMARS background, ead - EMARS analysis different grid, m2 - MACDA2, m2o - MACDA2_old): ')
@@ -72,13 +70,11 @@ d['Ls'] = data.Ls[:,0].drop_vars('lon')
 d = d.set_index(time='Ls')
 print('taking time cut')
 d = d.where(d.time >= Ls_early, drop = True).where(d.time <= Ls_late, drop = True)
-print('taking mean')
-d_mean = d.mean('time')
 d_inst = d[0,:,:,:]
 
 # fig, ax = plt.subplots(figsize = (10,10), subplot_kw={'projection':ccrs.NorthPolarStereo()})
 
-plt.rcParams.update({'font.size': 25})
+plt.rcParams.update({'font.size': 20})
 
 
 theta = np.linspace(0, 2*np.pi, 100)
@@ -89,14 +85,11 @@ circle = mpath.Path(verts * radius + center)
 # ax.set_boundary(circle, transform=ax.transAxes)
 # ax.set_extent([-180,180,50,90], crs=ccrs.PlateCarree())
 
-if orientation == 'horizontal':
-    fig = plt.figure(figsize = (14, 8))
-    spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 1], figure=fig)
-    name = ''
-elif orientation == 'vertical':
-    fig = plt.figure(figsize = (8, 14))
-    spec = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=[1, 1], figure=fig)
-    name = '_vert'
+
+fig = plt.figure(figsize = (7, 8))
+spec = gridspec.GridSpec(ncols=1, nrows=1, figure=fig)
+
+
 #fig.suptitle('MY%02d Ls%.4f' %(my, d.time[i].values))
 ax = fig.add_subplot(spec[0], projection = ccrs.NorthPolarStereo())
 gl = ax.gridlines(crs = ccrs.PlateCarree(), linewidth = 1, linestyle = '--', color = 'black', alpha = 1, draw_labels=False)
@@ -104,38 +97,31 @@ meridians = [0, 60, 120, 180, -60, -120]
 parallels = [50, 60, 70, 80]
 gl.xlocator = mticker.FixedLocator(meridians)
 gl.ylocator = mticker.FixedLocator(parallels)
+gl.top_labels = False
+gl.bottom_labels = False
+gl.right_labels = False
+gl.left_labels = False
 gl.xlabels = False
-#gl.ylabels = [True if parallel in [50] else False]
+# gl.ylabels = [50, 60, 70, 80]
+# for parallel in parallels:
+#     ax.text(0, parallel*0.995, f'{parallel}' + r'$\mathrm{\degree N}$', transform=ccrs.PlateCarree(),
+#             horizontalalignment='left', verticalalignment='top',
+#             fontsize=15, color='black')
 ax.set_boundary(circle, transform=ax.transAxes)
 ax.set_extent([-180,180,50,90], crs=ccrs.PlateCarree())
-contourplot = ax.contourf(d_mean[0,:,:].lon, d_mean[0,:,:].lat, d_mean[0,:,:].values, vmin = 0, vmax = max,
-                            transform = ccrs.PlateCarree(), cmap='OrRd', levels=np.linspace(0, max, 13), extend = 'both')
-#cbar = plt.colorbar(contourplot, ticks = np.linspace(0,8,11), shrink = 0.5, fraction = 0.075, label = 'PV (MPVU)')
-
-ax1 = fig.add_subplot(spec[1], projection=ccrs.NorthPolarStereo())
-gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), linewidth=1, linestyle='--', color='black', alpha=1, draw_labels=False)
-gl1.xlocator = mticker.FixedLocator(meridians)
-gl1.ylocator = mticker.FixedLocator(parallels)
-ax1.set_boundary(circle, transform=ax1.transAxes)
-ax1.set_extent([-180,180,50,90], crs=ccrs.PlateCarree())
-contourplot1 = ax1.contourf(d_inst[0,:,:].lon, d_inst[0,:,:].lat, d_inst[0,:,:].values, vmin = 0, vmax = max,
-                            transform = ccrs.PlateCarree(), cmap='OrRd', levels=np.linspace(0, max, 13), extend = 'both')
+contourplot = ax.contourf(d_inst[0,:,:].lon, d_inst[0,:,:].lat, d_inst[0,:,:].values, vmin = 0, vmax = max,
+                            transform = ccrs.PlateCarree(), cmap='OrRd', levels=np.linspace(0, max, 2*max+1), extend = 'both')
 #cbar1 = plt.colorbar(contourplot1, ticks = np.linspace(0,8,11), shrink = 0.5, fraction = 0.075, label = 'PV (MPVU)')
-if orientation == 'horizontal':
-    cbar_ax = fig.add_axes([0.375, 0.1, 0.25, 0.03])
-    cbar = plt.colorbar(contourplot, cax=cbar_ax, orientation='horizontal', ticks=np.linspace(0,max,7), label='Lait-scaled PV (MPVU)')
-elif orientation == 'vertical':
-    cbar_ax = fig.add_axes([0.87, 0.25, 0.03, 0.5])
-    cbar = plt.colorbar(contourplot, cax=cbar_ax, orientation='vertical', ticks=np.linspace(0,max,7), label='Lait-scaled PV (MPVU)')
+# [left, bottom, width, height] 
+cbar_ax = fig.add_axes([0.25, 0.1, 0.5, 0.03])
+cbar = plt.colorbar(contourplot, cax=cbar_ax, orientation='horizontal', ticks=np.linspace(0,max,max+1), label=r'PV [${10^{-10}}\mathrm{m^2~s^{-1}~K~{kg}^{-1}}$]')
 
 
-# ax.text(0.5, 1.05, f'(a) Ls{Ls_early}-{Ls_late} average', horizontalalignment='center', transform=ax.transAxes)
-# ax1.text(0.5, 1.05, f'(b) Ls{round(d_inst.time.values.item(),2)} Instantaneous', horizontalalignment='center', transform=ax1.transAxes)
-
-ax.text(0.5, 1.05, f'(a) 30 sol average', horizontalalignment='center', transform=ax.transAxes)
-ax1.text(0.5, 1.05, f'(b) Instantaneous', horizontalalignment='center', transform=ax1.transAxes)
+ax.set_title(r'North pole, $L_s=270\mathrm{\degree}$', y=1.0, pad=20)
 
 
-plt.savefig(f'{path}Plots/PV_ave-vs-inst_my{year}{name}_Ls{Ls_early}-{Ls_late}_{set1}_{level}K.pdf')
+plt.savefig(f'{path}Plots/PV_inst_my{year}_Ls{Ls_early}_{set1}_{level}K.pdf')
 
-print(f'Plot made: \n {path}Plots/PV_ave-vs-inst_my{year}{name}_Ls{Ls_early}-{Ls_late}_{set1}_{level}K.pdf')
+# print(f'{d_inst.time}')
+
+print(f'Plot made:\n {path}Plots/PV_inst_my{year}_Ls{Ls_early}_{set1}_{level}K.pdf')

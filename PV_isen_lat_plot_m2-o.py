@@ -7,8 +7,8 @@ Lsmin = 240
 Lsmax = 300
 
 i = 0
-fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize = (20,10))
-while i<=3:
+fig, axs = plt.subplots(2, 8, sharex=True, sharey=True, figsize = (60,10))
+while i<=15:
     c = int(i/2)
     r = np.remainder(i, 2)
     if r == 0:
@@ -24,14 +24,28 @@ while i<=3:
         my = 28
     elif c == 1:
         my = 29
+    elif c == 2:
+        my = 30
+    elif c == 3:
+        my = 31
+    elif c == 4:
+        my = 32
+    elif c == 5:
+        my = 33
+    elif c == 6:
+        my = 34
+    elif c == 7:
+        my = 35
+    
     print('%s MY%d' %(type[:-1], my))
     data = xr.open_dataset(path + 'isentropic_%s_my%d.nc' %(dataset, my))
     data_winter = data.where(data.Ls >= Lsmin, drop=True)
     data_winter = data_winter.where(data_winter.Ls <= Lsmax, drop=True)
     data_winter_ave = data_winter.mean('time')
     data_ave = data_winter_ave.mean('lon')
-    # print('Lait scaling')
-    # data_ave = fcs.lait_scale(data_ave)
+    if dataset == 'openmars':
+        print('Lait scaling')
+        data_ave['PV_lait'] = fcs.lait_scale(data_ave)
     data_ave['PV'] = data_ave.PV_lait
     maxPV = data_ave.max('lat')
     maxPV_lat_ind = np.where(data_ave.PV == maxPV.PV)[1]

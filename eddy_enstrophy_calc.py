@@ -29,8 +29,8 @@ elif datachoice == 'ea':
 elif datachoice == 'm2':
     dataset = 'MACDA2_data'
     set = 'macda2'
-    # years = [28, 29]
-    years = [29]
+    years = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+    # years = [29]
 
 
 path = '/disco/share/sh1293/%s/Isentropic/' %(dataset)
@@ -53,10 +53,11 @@ for year in years:
             ds['Ls'] = ds.Ls[:,0].drop_vars('lon')
         #da = ds.PV * 10**4
         #da = da.assign_coords({'Ls':ds.Ls})
-        print('Lait scaling')
-        qs = fcs.lait_scale(ds)
+        # print('Lait scaling')
+        # qs = fcs.lait_scale(ds)
         # pdb.set_trace()  
-        qs = qs * 10**4
+        print('Saving Lait PV')
+        qs = ds.PV_lait * 10**4
         qs = qs.assign_coords({'Ls':ds.Ls})
         if not os.path.exists('/disco/share/sh1293/%s/Eddy_enstrophy/lev%03d_my%02d.nc' %(dataset, islev, year)):
             print('Eddy enstrophy calculation')

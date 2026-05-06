@@ -48,8 +48,8 @@ levels = np.array([200., 250., 275., 300., 310., 320., 330., 340.,
                     600., 650., 700., 750., 800., 850., 900., 950.])
 
 print('splitting by year')
-years = np.sort(np.unique(initds.MY))
-#years = [25]
+# years = np.sort(np.unique(initds.MY))
+years = [29]
 print(years)
 for year in years:
     passcond = True
@@ -73,15 +73,15 @@ for year in years:
         midds, prs = calc.netcdf_prep(splitds, type)
         splitds.close()
         print('interpolating to isobaric')
-        d_isobaric = calc.isobaric_interp(midds, prs)
+        d_isobaric = calc.isobaric_interp(midds, prs, extras='background' if datachoice=='b' else '')
         midds.close()
         prs.close()
         if datachoice == 'b':
-            theta, d_isobaric['PV'] = calc.calculate_PV(d_isobaric, extras='background')
+            theta, d_isobaric['PV'] = calc.calculate_PV(d_isobaric)
         else:
             theta, d_isobaric['PV'] = calc.calculate_PV(d_isobaric)
         print('interpolating to isentropic')
-        d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')
+        d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels, extras='background' if datachoice=='b' else '').astype('float32')
         d_isentropic['PV_lait'] = fn.lait_scale(d_isentropic)
         #try:
         #    d_isentropic = calc.interpolate_to_isentropic(d_isobaric, levels = levels).astype('float32')
